@@ -7,10 +7,12 @@
 //
 
 #import "BLCImagesTableViewController.h"
+#import "BLCDataSource.h"
+#import "BLCMedia.h"
+#import "BLCUser.h"
+#import "BLCComment.h"
 
 @interface BLCImagesTableViewController ()
-
-@property (nonatomic, strong) NSMutableArray *images;
 
 @end
 
@@ -20,7 +22,6 @@
     self = [super initWithStyle:style];
     if (self) {
         //custom initialization
-        self.images = [NSMutableArray array];
     }
     return self;
 }
@@ -28,15 +29,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    for (int i = 1; i <= 10; i++) {
-        NSString *imageName = [NSString stringWithFormat:@"%d.jpg", i];
-        UIImage *image = [UIImage imageNamed:imageName];
-        if (image) {
-            [self.images addObject:image];
-        }
-    }
-    
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"imageCell"];
+    [self.tableView registerClass:[UITableViewCell class]
+           forCellReuseIdentifier:@"imageCell"];
     
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -53,7 +47,7 @@
 #pragma mark - Table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.images.count;
+    return [self items].count;
 }
 
 
@@ -81,17 +75,24 @@
     }
     
     //for each row that shows up, it will be given its respective image number
-    UIImage *image = self.images[indexPath.row];
-    imageView.image = image;
+    BLCMedia *item = [self items][indexPath.row];
+    imageView.image = item.image;
     
     return cell;
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UIImage *image = self.images[indexPath.row];
+    BLCMedia *item = [self items][indexPath.row];
+    UIImage *image = item.image;
     return (CGRectGetWidth(self.view.frame) / image.size.width) * image.size.height;
 }
 
+//Code for the checkpoint assignment
+- (NSArray *) items {
+    return [BLCDataSource sharedInstance].mediaItems;
+}
+
+/*
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
         return YES;
@@ -99,8 +100,9 @@
 //    // Return NO if you do not want the specified item to be editable.
 //    return YES;
 }
-
-
+*/
+ 
+/*
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
@@ -111,8 +113,8 @@
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }
 }
+*/
 
- 
 /*
 // Override to support rearranging the table view.
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
