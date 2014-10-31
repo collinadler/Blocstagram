@@ -6,13 +6,13 @@
 //  Copyright (c) 2014 Bloc. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "BLCViewController.h"
 
-@interface ViewController ()
+@interface BLCViewController ()
 
 @end
 
-@implementation ViewController
+@implementation BLCViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
