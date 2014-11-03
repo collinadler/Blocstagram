@@ -12,8 +12,8 @@
 
 //access by calling [BLCDataSource sharedInstance];
 +(instancetype) sharedInstance;
+
 //publicly (to other classes) this will be a readonly property
 @property (nonatomic, strong, readonly) NSArray *mediaItems;
-
 
 @end

@@ -40,6 +40,7 @@
     return self;
 }
 
+
 - (void) addRandomData {
     NSMutableArray *randomMediaItems = [NSMutableArray array];
     
@@ -62,6 +63,9 @@
             }
             
             media.comments = randomComments;
+            
+            BLCComment *caption = [self randomComment];
+            media.caption = caption.text;
             
             [randomMediaItems addObject:media];
         }
