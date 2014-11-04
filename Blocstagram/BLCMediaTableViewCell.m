@@ -16,6 +16,7 @@
 @property (nonatomic, strong) UIImageView *mediaImageView;
 @property (nonatomic, strong) UILabel *usernameAndCaptionLabel;
 @property (nonatomic, strong) UILabel *commentLabel;
+@property (nonatomic, strong) NSLayoutConstraint *usernameAndCaptionLabelTopConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *imageHeightConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *usernameAndCaptionLabelHeightConstraint;
 @property (nonatomic, strong) NSLayoutConstraint *commentLabelHeightConstraint;
@@ -73,19 +74,30 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
                                                                                  metrics:nil
                                                                                    views:viewDictionary]];
         
-        //"H:|[_usernameAndCaption Label / commentLabel]| -> means both views should exactly match the width of the superview
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel]|"
                                                                                  options:kNilOptions
                                                                                  metrics:nil
                                                                                    views:viewDictionary]];
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentLabel]|" options:kNilOptions metrics:nil views:viewDictionary]];
         
-        //"V:|[_mediaImageView][_usernameAndCapitoionLabel][_commentLabel] -> means the three views should stack on top of eachother, with no space in between
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel]"
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentLabel]|"
                                                                                  options:kNilOptions
                                                                                  metrics:nil
                                                                                    views:viewDictionary]];
         
+        //"V:|[_mediaImageView][_usernameAndCapitoionLabel][_commentLabel] -> means the three views should stack on top of eachother, with no space in between
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_mediaImageView][_commentLabel]"
+                                                                                 options:kNilOptions
+                                                                                 metrics:nil
+                                                                                   views:viewDictionary]];
+        
+        self.usernameAndCaptionLabelTopConstraint = [NSLayoutConstraint constraintWithItem:_usernameAndCaptionLabel
+                                                                                 attribute:NSLayoutAttributeBottom
+                                                                                 relatedBy:NSLayoutRelationEqual
+                                                                                    toItem:_mediaImageView
+                                                                                 attribute:NSLayoutAttributeBottom
+                                                                                multiplier:1
+                                                                                  constant:-20];
+        //we will override this later
         self.imageHeightConstraint = [NSLayoutConstraint constraintWithItem:_mediaImageView
                                                                    attribute:NSLayoutAttributeHeight
                                                                    relatedBy:NSLayoutRelationEqual
@@ -93,7 +105,7 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
                                                                    attribute:NSLayoutAttributeNotAnAttribute
                                                                   multiplier:1
                                                                     constant:100];
-        
+        //we will override this later
         self.usernameAndCaptionLabelHeightConstraint = [NSLayoutConstraint constraintWithItem:_usernameAndCaptionLabel
                                                                   attribute:NSLayoutAttributeHeight
                                                                   relatedBy:NSLayoutRelationEqual
@@ -102,7 +114,7 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
                                                                  multiplier:1
                                                                    constant:100];
         
-        //all this is saying is "the height (i.e. NSLayoutAttributeHeight) of _commentLabel is equal (i.e. NSLayoutRelationEqual) to (nothing[nil] * 1[multiplier]) + 100[constant]."
+        //all this is saying is "the height (i.e. NSLayoutAttributeHeight) of _commentLabel is equal (i.e. NSLayoutRelationEqual) to (nothing[nil] * 1[multiplier]) + 100[constant]." - we override this later
         self.commentLabelHeightConstraint = [NSLayoutConstraint constraintWithItem:_commentLabel
                                                                   attribute:NSLayoutAttributeHeight
                                                                   relatedBy:NSLayoutRelationEqual
@@ -111,7 +123,7 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
                                                                  multiplier:1
                                                                    constant:100];
         
-        [self.contentView addConstraints:@[self.imageHeightConstraint, self.usernameAndCaptionLabelHeightConstraint, self.commentLabelHeightConstraint]];
+        [self.contentView addConstraints:@[self.imageHeightConstraint, self.usernameAndCaptionLabelHeightConstraint, self.commentLabelHeightConstraint, self.usernameAndCaptionLabelTopConstraint]];
     }
     return self;
 }
