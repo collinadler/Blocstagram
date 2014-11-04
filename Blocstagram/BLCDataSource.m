@@ -11,7 +11,9 @@
 #import "BLCMedia.h"
 #import "BLCComment.h"
 
-@interface BLCDataSource ()
+@interface BLCDataSource () {
+    NSMutableArray * _mediaItems;
+}
 
 //we'll redefine this privately so that only this class can modify it
 @property (nonatomic, strong) NSArray *mediaItems;
@@ -114,6 +116,43 @@
     }
     return [NSString stringWithString:s];
 }
+
+//Why we use mutableArrayValueForKey: instead of modifying the _mediaItems array directly? This is done so KVO updates are sent to the observers. If we remove the item from our underlying data source without going through KVC methods, no one (including BLCImagesTableViewController) will receive an update.
+-(void) deleteMediaItem:(BLCMedia *)item {
+    NSMutableArray *mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+    [mutableArrayWithKVO removeObject:item];
+}
+
+#pragma mark - Key/Value Observing
+
+//these methods will make the NSArray property key-value compliant (KVC)
+- (NSUInteger) countOfMediaItems {
+    return self.mediaItems.count;
+}
+
+- (id) objectInMediaItemsAtIndex:(NSUInteger)index {
+    return [self.mediaItems objectAtIndex:index];
+}
+
+- (NSArray *) mediaItemsAtIndexes:(NSIndexSet *)indexes {
+    return [self.mediaItems objectsAtIndexes:indexes];
+}
+
+//next, add mutuable accessor methods - KVC methods which allow insertion and deletion of elements from mediaItems
+
+- (void) insertObject:(BLCMedia *)object inMediaItemsAtIndex:(NSUInteger)index {
+    [_mediaItems insertObject:object atIndex:index];
+}
+
+- (void)removeObjectFromMediaItemsAtIndex:(NSUInteger)index {
+    [_mediaItems removeObjectAtIndex:index];
+}
+
+- (void) replaceObjectInMediaItemsAtIndex:(NSUInteger)index withObject:(id)object {
+    [_mediaItems replaceObjectAtIndex:index withObject:object];
+}
+
+
 
 @end
 
