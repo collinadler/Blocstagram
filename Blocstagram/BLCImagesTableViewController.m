@@ -55,6 +55,7 @@
     
     BLCMediaTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"mediaCell"
                                                                   forIndexPath:indexPath];
+    //this is where our overridden setter method in the BLCMediaTableViewCell comes into play
     cell.mediaItem = [BLCDataSource sharedInstance].mediaItems[indexPath.row];
     return cell;
 }
