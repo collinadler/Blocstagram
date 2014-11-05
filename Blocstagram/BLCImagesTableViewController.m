@@ -35,6 +35,11 @@
                                         options:0
                                         context:nil];
     
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self
+                            action:@selector(refreshControlDidFire:)
+                  forControlEvents:UIControlEventValueChanged];
+    
     [self.tableView registerClass:[BLCMediaTableViewCell class]
            forCellReuseIdentifier:@"mediaCell"];
     
@@ -86,13 +91,36 @@
 }
 
 //dealloc is a method found in NSObject - its purpose is to allow an instance of the class to perform last second cleanup before it goes away
-- (void)dealloc {
+-(void)dealloc {
     [[BLCDataSource sharedInstance] removeObserver:self forKeyPath:@"mediaItems"];
 }
 
-- (void)didReceiveMemoryWarning {
+-(void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void) refreshControlDidFire:(UIRefreshControl *)sender {
+    [[BLCDataSource sharedInstance] requestNewItemsWithCompletionHandler:^(NSError *error) {
+        [sender endRefreshing];
+    }];
+}
+
+//check whether or not the user has scrolled to the last photo
+-(void) infiniteScrollIfNecessary {
+    NSIndexPath *bottomIndexPath = [[self.tableView indexPathsForVisibleRows] lastObject];
+    
+    //if the last object's path (from above) is equal to the last object in _mediaItems array, recover more cells
+    if (bottomIndexPath && bottomIndexPath.row == [BLCDataSource sharedInstance].mediaItems.count - 1) {
+        [[BLCDataSource sharedInstance] requestOldItemsWithCompletionHandler:nil];
+    }
+}
+
+#pragma mark - UIScrollViewDelegate
+
+//this method is called whenever the user scrolls (obviously, its called repeatedly. Thus, when we scroll to the end, it will invoke the infinitescrollifnecessary method
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    [self infiniteScrollIfNecessary];
 }
 
 #pragma mark - Table view data source

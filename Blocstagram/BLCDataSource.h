@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 @class BLCMedia;
 
+typedef void (^BLCNewItemCompletionBlock)(NSError *error);
+
 @interface BLCDataSource : NSObject
 
 //access by calling [BLCDataSource sharedInstance];
@@ -19,5 +21,9 @@
 
 //adds a public method to let other classes delete a media item
 -(void) deleteMediaItem:(BLCMedia *)item;
+
+-(void) requestNewItemsWithCompletionHandler:(BLCNewItemCompletionBlock)completionHandler;
+-(void) requestOldItemsWithCompletionHandler:(BLCNewItemCompletionBlock)completionHandler;
+
 
 @end
