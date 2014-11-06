@@ -12,7 +12,9 @@
 #import "BLCComment.h"
 #import "BLCLoginViewController.h"
 
-@interface BLCDataSource ()
+@interface BLCDataSource () {
+    NSMutableArray *_mediaItems;
+}
 
 @property (nonatomic, strong, readwrite) NSString *accessToken;
 //we'll redefine this privately so that only this class can modify it
@@ -55,6 +57,7 @@
                                                        queue:nil
                                                   usingBlock:^(NSNotification *note) {
         self.accessToken = note.object;
+        //once we get notice of the access token, populate the data
         [self populateDataWithParameters:nil completionHandler:nil];
     }];
 }
@@ -205,21 +208,24 @@
 //next, add mutuable accessor methods - KVC methods which allow insertion and deletion of elements from mediaItems
 
 -(void) insertObject:(BLCMedia *)object inMediaItemsAtIndex:(NSUInteger)index {
-    NSMutableArray *temporaryMutableArray = [self.mediaItems mutableCopy];
-    [temporaryMutableArray insertObject:object atIndex:index];
-    self.mediaItems = temporaryMutableArray;
+//    NSMutableArray *temporaryMutableArray = [self.mediaItems mutableCopy];
+//    [temporaryMutableArray insertObject:object atIndex:index];
+//    self.mediaItems = temporaryMutableArray;
+    [_mediaItems insertObject:object atIndex:index];
 }
 
 -(void)removeObjectFromMediaItemsAtIndex:(NSUInteger)index {
-    NSMutableArray *temporaryMutableArray = [self.mediaItems mutableCopy];
-    [temporaryMutableArray removeObjectAtIndex:index];
-    self.mediaItems = temporaryMutableArray;
+//    NSMutableArray *temporaryMutableArray = [self.mediaItems mutableCopy];
+//    [temporaryMutableArray removeObjectAtIndex:index];
+//    self.mediaItems = temporaryMutableArray;
+    [_mediaItems removeObjectAtIndex:index];
 }
 
 -(void) replaceObjectInMediaItemsAtIndex:(NSUInteger)index withObject:(id)object {
-    NSMutableArray *temporaryMutableArray = [self.mediaItems mutableCopy];
-    [temporaryMutableArray replaceObjectAtIndex:index withObject:object];
-    self.mediaItems = temporaryMutableArray;
+//    NSMutableArray *temporaryMutableArray = [self.mediaItems mutableCopy];
+//    [temporaryMutableArray replaceObjectAtIndex:index withObject:object];
+//    self.mediaItems = temporaryMutableArray;
+    [_mediaItems replaceObjectAtIndex:index withObject:object];
 }
 
 #pragma mark - Completion Handler

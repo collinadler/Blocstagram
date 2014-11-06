@@ -50,6 +50,7 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
+//if this is triggered, that means the BLCDataSource has changed
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (object == [BLCDataSource sharedInstance] && [keyPath isEqualToString:@"mediaItems"]) {
         int kindOfChange = [change[NSKeyValueChangeKindKey] intValue];
@@ -65,16 +66,18 @@
             //creates an NSIndexSet, which represents every index in the array which has been modified (i.e. if images 2 and 3 were removed from mediaItems, those two values would be in the set
             NSIndexSet *indexSetOfChanges = change[NSKeyValueChangeIndexesKey];
             
-            //convert this NSIndexSet to& an NSArray of NSIndexPaths (which is what the table view animation methods require
+            //convert this NSIndexSet to an NSArray of NSIndexPaths (which is what the table view animation methods require
             NSMutableArray *indexPathsThatChanged = [NSMutableArray array];
             [indexSetOfChanges enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
                 NSIndexPath *newIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
                 [indexPathsThatChanged addObject:newIndexPath];
+                NSLog(@"The index path is: %@", newIndexPath);
             }];
             
             //call 'beginUpdates' to tell the table view we're about to make changes
             [self.tableView beginUpdates];
-            
+            NSLog(@"Rows in data: %lu", (unsigned long)[self items].count);
+            NSLog(@"Rows in table: %ld", (long)[self.tableView numberOfRowsInSection:0]);
             //tell the table view what the changes are
             if (kindOfChange == NSKeyValueChangeInsertion) {
                 [self.tableView insertRowsAtIndexPaths:indexPathsThatChanged withRowAnimation:UITableViewRowAnimationAutomatic];
@@ -85,6 +88,8 @@
             }
             
             //tell the table view that we're done telling it about changes, and to complete the animation
+            NSLog(@"New rows in data: %lu", (unsigned long)[self items].count);
+            NSLog(@"New rows in table: %ld", (long)[self.tableView numberOfRowsInSection:0]);
             [self.tableView endUpdates];
         }
     }

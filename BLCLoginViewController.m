@@ -92,7 +92,7 @@ NSString *const BLCLoginViewControllerDidGetAccessTokenNotification = @"BLCLogin
         NSRange rangeOfAccessTokenParameter = [urlString rangeOfString:@"access_token="];
         NSUInteger indexOfTokenStarting = rangeOfAccessTokenParameter.location + rangeOfAccessTokenParameter.length;
         NSString *accessToken = [urlString substringFromIndex:indexOfTokenStarting];
-        //posts the notification to any other object that is an observer
+        //posts the notification to any other object that is an observer (in this case, the data source)
         [[NSNotificationCenter defaultCenter] postNotificationName:BLCLoginViewControllerDidGetAccessTokenNotification
                                                             object:accessToken];
         return NO;

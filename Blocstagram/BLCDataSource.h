@@ -14,13 +14,12 @@ typedef void (^BLCNewItemCompletionBlock)(NSError *error);
 @interface BLCDataSource : NSObject
 
 //access by calling [BLCDataSource sharedInstance];
-+(instancetype) sharedInstance;
++ (instancetype) sharedInstance;
 
 + (NSString *) instagramClientID;;
 
 //publicly (to other classes) this will be a readonly property (meaning there is no setter method)
 @property (nonatomic, strong, readonly) NSArray *mediaItems;
-
 @property (nonatomic, strong, readonly) NSString *accessToken;
 
 //adds a public method to let other classes delete a media item
