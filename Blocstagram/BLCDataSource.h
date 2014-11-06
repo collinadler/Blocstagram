@@ -18,7 +18,7 @@ typedef void (^BLCNewItemCompletionBlock)(NSError *error);
 
 + (NSString *) instagramClientID;;
 
-//publicly (to other classes) this will be a readonly property
+//publicly (to other classes) this will be a readonly property (meaning there is no setter method)
 @property (nonatomic, strong, readonly) NSArray *mediaItems;
 
 @property (nonatomic, strong, readonly) NSString *accessToken;

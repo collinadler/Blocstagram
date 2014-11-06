@@ -141,7 +141,11 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     self.commentLabel.attributedText = [self commentString];
     
     //use our same scaling image calculation to determine the appropriate height of the image.
-    self.imageHeightConstraint.constant = self.mediaItem.image.size.height / self.mediaItem.image.size.width * CGRectGetWidth(self.contentView.bounds);
+    if (_mediaItem.image) {
+        self.imageHeightConstraint.constant = self.mediaItem.image.size.height / self.mediaItem.image.size.width * CGRectGetWidth(self.contentView.bounds);
+    } else {
+        self.imageHeightConstraint.constant = 0;
+    }
 }
 
 - (NSAttributedString *) usernameAndCaptionString {
@@ -198,6 +202,8 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     //make a cell
     BLCMediaTableViewCell *layoutCell = [[BLCMediaTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
                                                                      reuseIdentifier:@"layoutCell"];
+    
+    
     layoutCell.mediaItem = mediaItem;
     layoutCell.frame = CGRectMake(0, 0, width, CGRectGetHeight(layoutCell.frame));
     
@@ -213,8 +219,12 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     // Initialization code
 }
 
+- (void)setHighlighted:(BOOL)highlighted animated:(BOOL)animated {
+    [super setHighlighted:NO animated:animated];
+}
+
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
+    [super setSelected:NO animated:animated];
 
     // Configure the view for the selected state
 }

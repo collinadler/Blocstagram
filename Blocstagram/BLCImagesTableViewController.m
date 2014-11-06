@@ -65,7 +65,7 @@
             //creates an NSIndexSet, which represents every index in the array which has been modified (i.e. if images 2 and 3 were removed from mediaItems, those two values would be in the set
             NSIndexSet *indexSetOfChanges = change[NSKeyValueChangeIndexesKey];
             
-            //convert this NSIndexSet to an NSArray of NSIndexPaths (which is what the table view animation methods require
+            //convert this NSIndexSet to& an NSArray of NSIndexPaths (which is what the table view animation methods require
             NSMutableArray *indexPathsThatChanged = [NSMutableArray array];
             [indexSetOfChanges enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
                 NSIndexPath *newIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
@@ -141,6 +141,15 @@
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     BLCMedia *item = [self items][indexPath.row];
     return [BLCMediaTableViewCell heightForMediaItem:item width:CGRectGetWidth(self.view.frame)];
+}
+
+- (CGFloat) tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    BLCMedia *item = [BLCDataSource sharedInstance].mediaItems[indexPath.row];
+    if (item.image) {
+        return 350;
+    } else {
+        return 150;
+    }
 }
 
 //Code for the checkpoint assignment
