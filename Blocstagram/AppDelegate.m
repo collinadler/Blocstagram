@@ -27,17 +27,22 @@
     [BLCDataSource sharedInstance];
     
     UINavigationController *navVC = [[UINavigationController alloc] init];
-    BLCLoginViewController *loginVC = [[BLCLoginViewController alloc] init];
-    [navVC setViewControllers:@[loginVC] animated:YES];
-    
-    //switch to the images table controller once an access token is obtained
-    [[NSNotificationCenter defaultCenter] addObserverForName:BLCLoginViewControllerDidGetAccessTokenNotification
-                                                      object:nil
-                                                       queue:nil
-                                                  usingBlock:^(NSNotification *note) {
+    if (![BLCDataSource sharedInstance].accessToken) {
+        BLCLoginViewController *loginVC = [[BLCLoginViewController alloc] init];
+        [navVC setViewControllers:@[loginVC] animated:YES];
+        
+        //switch to the images table controller once an access token is obtained
+        [[NSNotificationCenter defaultCenter] addObserverForName:BLCLoginViewControllerDidGetAccessTokenNotification
+                                                          object:nil
+                                                           queue:nil
+                                                      usingBlock:^(NSNotification *note) {
+            BLCImagesTableViewController *imagesVC = [[BLCImagesTableViewController alloc] init];
+            [navVC setViewControllers:@[imagesVC] animated:YES];
+        }];
+    } else {
         BLCImagesTableViewController *imagesVC = [[BLCImagesTableViewController alloc] init];
         [navVC setViewControllers:@[imagesVC] animated:YES];
-    }];
+    }
     
     self.window.rootViewController = navVC;
     

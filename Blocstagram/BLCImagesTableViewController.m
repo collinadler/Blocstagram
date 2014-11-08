@@ -71,7 +71,6 @@
             [indexSetOfChanges enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
                 NSIndexPath *newIndexPath = [NSIndexPath indexPathForRow:idx inSection:0];
                 [indexPathsThatChanged addObject:newIndexPath];
-                NSLog(@"The index path is: %@", newIndexPath);
             }];
             
             //call 'beginUpdates' to tell the table view we're about to make changes

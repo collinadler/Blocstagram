@@ -11,6 +11,7 @@
 #import "BLCMedia.h"
 #import "BLCComment.h"
 #import "BLCLoginViewController.h"
+#import <UICKeyChainStore.h>
 
 @interface BLCDataSource () {
     NSMutableArray *_mediaItems;
@@ -30,7 +31,7 @@
 
 
 
-+(instancetype) sharedInstance {
++ (instancetype) sharedInstance {
     
     //To make sure we only create a single instance of this class we use a function called dispatch_once. This function takes a block of code and ensures that it only runs once
     static dispatch_once_t once;
@@ -41,22 +42,51 @@
     return sharedInstance;
 }
 
--(instancetype) init {
+- (instancetype) init {
     self = [super init];
     
     if (self) {
-        [self registerForAccessTokenNotification];
+        self.accessToken = [UICKeyChainStore stringForKey:@"access token"];
+        
+        if (!self.accessToken) {
+            [self registerForAccessTokenNotification];
+        } else {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                NSString *fullPath = [self pathForFilename:NSStringFromSelector(@selector(mediaItems))];
+                NSArray *storedMediaItems = [NSKeyedUnarchiver unarchiveObjectWithFile:fullPath];
+
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (storedMediaItems.count > 0) {
+                        NSMutableArray *mutableMediaItems = [storedMediaItems mutableCopy];
+                        
+                        [self willChangeValueForKey:@"mediaItems"];
+                        self.mediaItems = mutableMediaItems;
+                        for (BLCMedia *mediaItem in self.mediaItems) {
+                            if (!mediaItem.image) {
+                                [self downloadImageForMediaItem:mediaItem];                                
+                            }
+                        }
+                        [self didChangeValueForKey:@"mediaItems"];
+                        [[BLCDataSource sharedInstance] requestNewItemsWithCompletionHandler:nil];
+                    } else {
+                        // there was nothing saved, so initiate the normal sequence of getting data
+                        [self populateDataWithParameters:nil completionHandler:nil];
+                    }
+                });
+            });
+        }
     }
     return self;
 }
 
 //Immediately after the login controller posts the specified notification, the block provided will run
-- (void)registerForAccessTokenNotification {
+- (void) registerForAccessTokenNotification {
     [[NSNotificationCenter defaultCenter] addObserverForName:BLCLoginViewControllerDidGetAccessTokenNotification
                                                       object:nil
                                                        queue:nil
                                                   usingBlock:^(NSNotification *note) {
         self.accessToken = note.object;
+        [UICKeyChainStore setString:self.accessToken forKey:@"access token"];
         //once we get notice of the access token, populate the data
         [self populateDataWithParameters:nil completionHandler:nil];
     }];
@@ -157,6 +187,26 @@
         self.mediaItems = tmpMediaItems;
         [self didChangeValueForKey:@"mediaItems"];
     }
+    
+    if (tmpMediaItems.count > 0) {
+        //write the changes to disk. similar to connecting to teh internet, reading / writing to the disk can be slow so its best to dispatch_async onto a background queue to do the work you need
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSUInteger numberOfItemsToSave = MIN(self.mediaItems.count, 50);
+            NSArray *mediaItemsToSave = [self.mediaItems subarrayWithRange:NSMakeRange(0, numberOfItemsToSave)];
+            BLCMedia *mediaToCheck = [mediaItemsToSave objectAtIndex:2];
+            NSLog(@"The media.image is: %@", mediaToCheck.image);
+            NSString *fullPath = [self pathForFilename:NSStringFromSelector(@selector(mediaItems))];
+            //then save it as an NSData to the disk
+            NSData *mediaItemData = [NSKeyedArchiver archivedDataWithRootObject:mediaItemsToSave];
+            NSError *dataError;
+            // the two options ensures the complete file is save and encryts it, respecitvely
+            BOOL wroteSuccessfully = [mediaItemData writeToFile:fullPath options:NSDataWritingAtomic | NSDataWritingFileProtectionCompleteUnlessOpen error:&dataError];
+            
+            if (!wroteSuccessfully) {
+                NSLog(@"Couldn't write file: %@", dataError);
+            }
+        });
+    }
 }
 
 - (void) downloadImageForMediaItem:(BLCMedia *)mediaItem {
@@ -235,8 +285,6 @@
     if (self.isRefreshing == NO) {
         self.isRefreshing = YES;
         
-        
-        
         //use the MIN_ID parameter to let Instagram know we're only interested in items with a higher ID (i.e., newer items)
         NSString *minID = [[self.mediaItems firstObject] idNumber];
         NSDictionary *parameters = @{@"min_id" : minID};
@@ -266,6 +314,16 @@
             }
         }];
     }
+}
+
+#pragma mark - NSKeyedArchiver
+
+//method creates the full path to a file given a filename
+- (NSString *) pathForFilename:(NSString *) filename {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths firstObject];
+    NSString *dataPath = [documentsDirectory stringByAppendingPathComponent:filename];
+    return dataPath;
 }
 
 @end

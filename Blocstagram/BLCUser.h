@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface BLCUser : NSObject
+@interface BLCUser : NSObject <NSCoding>
 
 //a collection of properties in the interface is enough to ceate a basic model
 @property (nonatomic, strong) NSString *idNumber;
