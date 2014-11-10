@@ -287,15 +287,18 @@
         
         //use the MIN_ID parameter to let Instagram know we're only interested in items with a higher ID (i.e., newer items)
         NSString *minID = [[self.mediaItems firstObject] idNumber];
-        NSDictionary *parameters = @{@"min_id" : minID};
         
-        [self populateDataWithParameters:parameters completionHandler:^(NSError *error) {
-            self.isRefreshing = NO;
+        if (minID) {
+            NSDictionary *parameters = @{@"min_id" : minID};
             
-            if (completionHandler) {
-                completionHandler(error);
-            }
-        }];
+            [self populateDataWithParameters:parameters completionHandler:^(NSError *error) {
+                self.isRefreshing = NO;
+                
+                if (completionHandler) {
+                    completionHandler(error);
+                }
+            }];
+        }
     }
 }
 
