@@ -12,8 +12,13 @@
 #import "BLCUser.h"
 #import "BLCComment.h"
 #import "BLCMediaTableViewCell.h"
+#import "BLCMediaFullScreenViewController.h"
+#import "BLCMediaFullScreenAnimator.h"
 
-@interface BLCImagesTableViewController ()
+@interface BLCImagesTableViewController () <BLCMediaTableViewDelegate, UIViewControllerTransitioningDelegate>
+
+//add a proprety for the animation controller to track which view was tapped most recently
+@property (nonatomic, weak) UIImageView *lastTappedImageView;
 
 @end
 
@@ -75,8 +80,6 @@
             
             //call 'beginUpdates' to tell the table view we're about to make changes
             [self.tableView beginUpdates];
-            NSLog(@"Rows in data: %lu", (unsigned long)[self items].count);
-            NSLog(@"Rows in table: %ld", (long)[self.tableView numberOfRowsInSection:0]);
             //tell the table view what the changes are
             if (kindOfChange == NSKeyValueChangeInsertion) {
                 [self.tableView insertRowsAtIndexPaths:indexPathsThatChanged withRowAnimation:UITableViewRowAnimationAutomatic];
@@ -87,8 +90,6 @@
             }
             
             //tell the table view that we're done telling it about changes, and to complete the animation
-            NSLog(@"New rows in data: %lu", (unsigned long)[self items].count);
-            NSLog(@"New rows in table: %ld", (long)[self.tableView numberOfRowsInSection:0]);
             [self.tableView endUpdates];
         }
     }
@@ -127,6 +128,35 @@
     [self infiniteScrollIfNecessary];
 }
 
+#pragma mark - BLCMediaTableViewDelegate
+
+- (void) cell:(BLCMediaTableViewCell *)cell didTapImageView:(UIImageView *)imageView {
+    //sends whatever image was tapped in the table cell to this class as the last tapped image view
+    self.lastTappedImageView = imageView;
+    BLCMediaFullScreenViewController *fullScreenVC = [[BLCMediaFullScreenViewController alloc] initWithMedia:cell.mediaItem];
+    
+    fullScreenVC.transitioningDelegate = self;
+    fullScreenVC.modalPresentationStyle = UIModalPresentationCustom;
+    [self presentViewController:fullScreenVC animated:YES completion:nil];
+}
+
+- (void) cell:(BLCMediaTableViewCell *)cell didLongPressImageView:(UIImageView *)imageView {
+    NSMutableArray *itemsToShare = [NSMutableArray array];
+    
+    if (cell.mediaItem.caption.length > 0) {
+        [itemsToShare addObject:cell.mediaItem.caption];
+    }
+    
+    if (cell.mediaItem.image) {
+        [itemsToShare addObject:cell.mediaItem.image];
+    }
+    
+    if (itemsToShare.count > 0) {
+        UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsToShare applicationActivities:nil];
+        [self presentViewController:activityVC animated:YES completion:nil];
+    }
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -137,6 +167,8 @@
     
     BLCMediaTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"mediaCell"
                                                                   forIndexPath:indexPath];
+    //for each cell that comes in, set its delegate to this view controller (so that the cell can send taps to this view contoller
+    cell.delegate = self;
     //this is where our overridden setter method in the BLCMediaTableViewCell comes into play
     cell.mediaItem = [BLCDataSource sharedInstance].mediaItems[indexPath.row];
     return cell;
@@ -159,6 +191,23 @@
 //Code for the checkpoint assignment
 - (NSArray *) items {
     return [BLCDataSource sharedInstance].mediaItems;
+}
+
+#pragma mark - UIViewControllerTransitioningDelegate
+
+- (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented
+                                                                  presentingController:(UIViewController *)presenting
+                                                                      sourceController:(UIViewController *)source {
+    BLCMediaFullScreenAnimator *animator = [BLCMediaFullScreenAnimator new];
+    animator.presenting = YES;
+    animator.cellImageView = self.lastTappedImageView;
+    return animator;
+}
+
+- (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
+    BLCMediaFullScreenAnimator *animator = [BLCMediaFullScreenAnimator new];
+    animator.cellImageView = self.lastTappedImageView;
+    return animator;
 }
 
 /*

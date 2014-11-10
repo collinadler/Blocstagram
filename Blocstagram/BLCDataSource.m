@@ -193,8 +193,7 @@
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSUInteger numberOfItemsToSave = MIN(self.mediaItems.count, 50);
             NSArray *mediaItemsToSave = [self.mediaItems subarrayWithRange:NSMakeRange(0, numberOfItemsToSave)];
-            BLCMedia *mediaToCheck = [mediaItemsToSave objectAtIndex:2];
-            NSLog(@"The media.image is: %@", mediaToCheck.image);
+
             NSString *fullPath = [self pathForFilename:NSStringFromSelector(@selector(mediaItems))];
             //then save it as an NSData to the disk
             NSData *mediaItemData = [NSKeyedArchiver archivedDataWithRootObject:mediaItemsToSave];
