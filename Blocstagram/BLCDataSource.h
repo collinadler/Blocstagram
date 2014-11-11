@@ -23,10 +23,9 @@ typedef void (^BLCNewItemCompletionBlock)(NSError *error);
 @property (nonatomic, strong, readonly) NSString *accessToken;
 
 //adds a public method to let other classes delete a media item
--(void) deleteMediaItem:(BLCMedia *)item;
+- (void) deleteMediaItem:(BLCMedia *)item;
 
--(void) requestNewItemsWithCompletionHandler:(BLCNewItemCompletionBlock)completionHandler;
--(void) requestOldItemsWithCompletionHandler:(BLCNewItemCompletionBlock)completionHandler;
-
+- (void) requestNewItemsWithCompletionHandler:(BLCNewItemCompletionBlock)completionHandler;
+- (void) requestOldItemsWithCompletionHandler:(BLCNewItemCompletionBlock)completionHandler;
 
 @end

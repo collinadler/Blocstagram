@@ -12,6 +12,7 @@
 #import "BLCComment.h"
 #import "BLCLoginViewController.h"
 #import <UICKeyChainStore.h>
+#import <AFNetworking/AFNetworking.h>
 
 @interface BLCDataSource () {
     NSMutableArray *_mediaItems;
@@ -24,6 +25,9 @@
 @property (nonatomic, assign) BOOL isRefreshing;
 @property (nonatomic, assign) BOOL isLoadingOlderItems;
 @property (nonatomic, assign) BOOL thereAreNoMoreOlderMessages;
+
+//add a property for the manager
+@property (nonatomic, strong) AFHTTPRequestOperationManager *instagramOperationManager;
 
 @end
 
@@ -46,6 +50,19 @@
     self = [super init];
     
     if (self) {
+        NSURL *baseURL = [NSURL URLWithString:@"https://api.instagram.com/v1/"];
+        //init the operation manager and provide a Base URL, which is automatically prepended to any relative URLs we provide later.
+        self.instagramOperationManager = [[AFHTTPRequestOperationManager alloc] initWithBaseURL:baseURL];
+        
+        AFJSONResponseSerializer *jsonSerializer = [AFJSONResponseSerializer serializer];
+        
+        AFImageResponseSerializer *imageSerializer = [AFImageResponseSerializer serializer];
+        imageSerializer.imageScale = 1.0;
+        
+        //Since some requests return JSON and others return images, we create a AFCompoundResponseSerializer - saves us from having to specify for each request the type of object we want; AFNetworking will figure it out automatically
+        AFCompoundResponseSerializer *serializer = [AFCompoundResponseSerializer compoundSerializerWithResponseSerializers:@[jsonSerializer, imageSerializer]];
+        self.instagramOperationManager.responseSerializer = serializer;
+        
         self.accessToken = [UICKeyChainStore stringForKey:@"access token"];
         
         if (!self.accessToken) {
@@ -61,11 +78,11 @@
                         
                         [self willChangeValueForKey:@"mediaItems"];
                         self.mediaItems = mutableMediaItems;
-                        for (BLCMedia *mediaItem in self.mediaItems) {
-                            if (!mediaItem.image) {
-                                [self downloadImageForMediaItem:mediaItem];                                
-                            }
-                        }
+//                        for (BLCMedia *mediaItem in self.mediaItems) {
+//                            if (!mediaItem.image) {
+//                                [self downloadImageForMediaItem:mediaItem];                                
+//                            }
+//                        }
                         [self didChangeValueForKey:@"mediaItems"];
                         [[BLCDataSource sharedInstance] requestNewItemsWithCompletionHandler:nil];
                     } else {
@@ -106,50 +123,28 @@
 
 - (void) populateDataWithParameters:(NSDictionary *)parameters completionHandler:(BLCNewItemCompletionBlock)completionHandler {
     if (self.accessToken) {
-        //with long-running work (network connections, etc.), you should do it in the background to allow the UI (which runs on teh main queue) to remain responsive
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            //do the network request in the background, so the UI doesn't lock up
-            
-            NSMutableString *urlString = [NSMutableString stringWithFormat:@"https://api.instagram.com/v1/users/self/feed?access_token=%@", self.accessToken];
-            for (NSString *parameterName in parameters) {
-                //for example, if dictionary contains {count:30}, append "&count=50" to the URL
-                [urlString appendFormat:@"&%@=%@", parameterName, parameters[parameterName]];
-            }
-            
-            NSURL *url = [NSURL URLWithString:urlString];
-            
-            if (url) {
-                NSURLRequest *request = [NSURLRequest requestWithURL:url];
-                
-                NSURLResponse *response;
-                NSError *webError;
-                //You can use NSURLConnection to handle connecting to a server and downloading the data. NSURLConnection's method returns an NSData and "vends" an NSURLRequest and an NSError
-                NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&webError];
-                
-                if (responseData) {
-                    NSError *jsonError;
-                    NSDictionary *feedDictionary = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&jsonError];
-                    
-                    if (feedDictionary) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            //done networking, go back on the main thread
-                            [self parseDataFromFeedDictionary:feedDictionary fromRequestWithParameters:parameters];
-                            if (completionHandler) {
-                                completionHandler(nil);
-                            }
-                        });
-                    } else if (completionHandler) {
-                        dispatch_sync(dispatch_get_main_queue(), ^{
-                            completionHandler(jsonError);
-                        });
-                    }
-                } else if (completionHandler) {
-                    dispatch_sync(dispatch_get_main_queue(), ^{
-                        completionHandler(webError);
-                    });
-                }
-            }
-        });
+        NSMutableDictionary *mutableParameters = [@{@"access_token" : self.accessToken} mutableCopy];
+
+        //in the event other parameters (like min_id or max_id) might be passed in
+        [mutableParameters addEntriesFromDictionary:parameters];
+
+        //get the resource and, if successful, send it to the parseDataFromFeedDictionary method for parsing
+        [self.instagramOperationManager GET:@"users/self/feed"
+                                 parameters:mutableParameters
+                                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                        if ([responseObject isKindOfClass:[NSDictionary class]]) {
+                                            [self parseDataFromFeedDictionary:responseObject fromRequestWithParameters:parameters];
+                                            
+                                            if (completionHandler) {
+                                                completionHandler(nil);
+                                            }
+                                        }
+                                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                        NSLog(@"Failure");
+                                        if (completionHandler) {
+                                            completionHandler(error);
+                                        }
+                                    }];
     }
 }
 
@@ -210,32 +205,18 @@
 
 - (void) downloadImageForMediaItem:(BLCMedia *)mediaItem {
     if (mediaItem.mediaURL && !mediaItem.image) {  //i.e. we have a url, but no image yet
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSURLRequest *request = [NSURLRequest requestWithURL:mediaItem.mediaURL];
-            
-            NSURLResponse *response;
-            NSError *error;
-            NSData *imageData = [NSURLConnection sendSynchronousRequest:request
-                                                      returningResponse:&response
-                                                                  error:&error];
-            
-            if (imageData) {
-                UIImage *image = [UIImage imageWithData:imageData];
-                
-                if (image) {
-                    mediaItem.image = image;
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        NSMutableArray *mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
-                        NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
-                        [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem];
-                    });
-                }
-            } else {
-                NSLog(@"Error downloading image: %@", error);
-            }
-        });
-        
+        [self.instagramOperationManager GET:mediaItem.mediaURL.absoluteString
+                                 parameters:nil
+                                    success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                        if ([responseObject isKindOfClass:[UIImage class]]) {
+                                            mediaItem.image = responseObject;
+                                            NSMutableArray *mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+                                            NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
+                                            [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem];
+                                        }
+                                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                        NSLog(@"Error downloading image: %@", error);
+                                    }];
     }
 }
 

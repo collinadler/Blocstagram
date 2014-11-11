@@ -87,6 +87,7 @@ NSString *const BLCLoginViewControllerDidGetAccessTokenNotification = @"BLCLogin
 //This method searches for a URL containing the redirect URI, and then sets the access token to everything after access_token=
 - (BOOL) webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
     NSString *urlString = request.URL.absoluteString;
+    NSLog(@"%@", urlString);
     if ([urlString hasPrefix:[self redirectURI]]) {
         //this contains our auth token
         NSRange rangeOfAccessTokenParameter = [urlString rangeOfString:@"access_token="];

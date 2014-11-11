@@ -22,6 +22,7 @@
 
 @property (nonatomic, strong) UITapGestureRecognizer *tapGestureRecognizer;
 @property (nonatomic, strong) UILongPressGestureRecognizer *longPressGestureRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *doubleTapGestureRecognizer;
 
 @end
 
@@ -60,6 +61,11 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
         self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapFired:)];
         self.tapGestureRecognizer.delegate = self;
         [self.mediaImageView addGestureRecognizer:self.tapGestureRecognizer];
+        
+        self.doubleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTapFired:)];
+        self.doubleTapGestureRecognizer.numberOfTapsRequired = 2;
+        [self.doubleTapGestureRecognizer requireGestureRecognizerToFail:self.tapGestureRecognizer];
+        [self addGestureRecognizer:self.doubleTapGestureRecognizer];
         
         self.longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressFired:)];
         self.longPressGestureRecognizer.delegate = self;
@@ -242,7 +248,7 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     // Configure the view for the selected state
 }
 
-#pragma mark - Image View
+#pragma mark - Gesture Recognizers
 
 //inform the delegate when a tap is fired
 - (void) tapFired:(UITapGestureRecognizer *)sender {
@@ -257,6 +263,11 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     }
 }
 
+- (void) doubleTapFired:(UITapGestureRecognizer *)sender {
+    if (!self.mediaItem.image) {
+//insert checkpoint code here
+    }
+}
 
 #pragma mark - UIGestureRecognizerDelegate
 
