@@ -158,7 +158,7 @@
         
         if (mediaItem) {
             [tmpMediaItems addObject:mediaItem];
-            [self downloadImageForMediaItem:mediaItem];
+//            [self downloadImageForMediaItem:mediaItem];
         }
     }
     //informs the KVO system that self.mediaItems is about to be replaced - trigers the notification to the table view to reload the data
@@ -205,17 +205,42 @@
 
 - (void) downloadImageForMediaItem:(BLCMedia *)mediaItem {
     if (mediaItem.mediaURL && !mediaItem.image) {  //i.e. we have a url, but no image yet
+        mediaItem.downloadState = BLCMediaDownloadStateDownloadInProgress;
+        
         [self.instagramOperationManager GET:mediaItem.mediaURL.absoluteString
                                  parameters:nil
                                     success:^(AFHTTPRequestOperation *operation, id responseObject) {
                                         if ([responseObject isKindOfClass:[UIImage class]]) {
                                             mediaItem.image = responseObject;
+                                            mediaItem.downloadState = BLCMediaDownloadStateHasImage;
                                             NSMutableArray *mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
                                             NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
                                             [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem];
+                                        } else {
+                                            mediaItem.downloadState = BLCMediaDownloadStateNonRecoverableError;
                                         }
                                     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                                         NSLog(@"Error downloading image: %@", error);
+                                        
+                                        mediaItem.downloadState = BLCMediaDownloadStateNonRecoverableError;
+                                        
+                                        //ALWAYS CHECK THAT THE ERROR.DOMAIN IS WHAT YOU'RE EXPECTING, AS OPPOSED TO, SAY, A NSCOCOAERRORDOMAIN
+                                        if ([error.domain isEqualToString:NSURLErrorDomain]) {
+                                            //it is a networking problem
+                                            if (error.code == NSURLErrorTimedOut ||
+                                                error.code == NSURLErrorCancelled ||
+                                                error.code == NSURLErrorCannotConnectToHost ||
+                                                error.code == NSURLErrorNetworkConnectionLost ||
+                                                error.code == NSURLErrorNotConnectedToInternet ||
+                                                error.code == NSURLErrorInternationalRoamingOff ||
+                                                error.code == NSURLErrorCallIsActive ||
+                                                error.code == NSURLErrorDataNotAllowed ||
+                                                error.code == NSURLErrorRequestBodyStreamExhausted) {
+                                                
+                                                //it might work if we try again
+                                                mediaItem.downloadState = BLCMediaDownloadStateNeedsImage;
+                                            }
+                                        }
                                     }];
     }
 }

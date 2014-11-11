@@ -151,7 +151,7 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     if (_mediaItem.image) {
         self.imageHeightConstraint.constant = self.mediaItem.image.size.height / self.mediaItem.image.size.width * CGRectGetWidth(self.contentView.bounds);
     } else {
-        self.imageHeightConstraint.constant = 0;
+        self.imageHeightConstraint.constant = maxSize.width;
     }
 
     //hide the line between the cells
@@ -221,7 +221,6 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     //make a cell
     BLCMediaTableViewCell *layoutCell = [[BLCMediaTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
                                                                      reuseIdentifier:@"layoutCell"];
-    
     
     layoutCell.mediaItem = mediaItem;
     layoutCell.frame = CGRectMake(0, 0, width, CGRectGetHeight(layoutCell.frame));

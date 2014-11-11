@@ -21,8 +21,12 @@
         NSString *standardResolutionImageURLString = mediaDictionary[@"images"][@"standard_resolution"][@"url"];
         NSURL *standardResolutionImageURL = [NSURL URLWithString:standardResolutionImageURLString];
         
+        //set the BLCMediaDownloadState default based on what happens
         if (standardResolutionImageURLString) {
             self.mediaURL = standardResolutionImageURL;
+            self.downloadState = BLCMediaDownloadStateNeedsImage;
+        } else {
+            self.downloadState = BLCMediaDownloadStateNonRecoverableError;
         }
         
         NSDictionary *captionDictionary = mediaDictionary[@"caption"];
@@ -55,6 +59,16 @@
         self.user = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(user))];
         self.mediaURL = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(mediaURL))];
 //        self.image = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(image))];
+        
+        //make it so that, after lauching the app, saved images will have a download state. you could also just encode / decode the property like you do with the others, but this way all the stored media items with missing images will be retried
+        if (self.image) {
+            self.downloadState = BLCMediaDownloadStateHasImage;
+        } else if (self.mediaURL) {
+            self.downloadState = BLCMediaDownloadStateNeedsImage;
+        } else {
+            self.downloadState = BLCMediaDownloadStateNonRecoverableError;
+        }
+        
         self.caption = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(caption))];
         self.comments = [aDecoder decodeObjectForKey:NSStringFromSelector(@selector(comments))];
     }

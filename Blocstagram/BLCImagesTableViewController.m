@@ -48,6 +48,9 @@
     [self.tableView registerClass:[BLCMediaTableViewCell class]
            forCellReuseIdentifier:@"mediaCell"];
     
+    self.tableView.indicatorStyle = UIScrollViewIndicatorStyleWhite;
+    self.tableView.decelerationRate = UIScrollViewDecelerationRateNormal;
+    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
     
@@ -124,8 +127,26 @@
 #pragma mark - UIScrollViewDelegate
 
 //this method is called whenever the user scrolls (obviously, its called repeatedly. Thus, when we scroll to the end, it will invoke the infinitescrollifnecessary method
--(void)scrollViewDidScroll:(UIScrollView *)scrollView {
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self infiniteScrollIfNecessary];
+
+    NSMutableArray *cellsForImages = [[NSMutableArray alloc] initWithArray:[self.tableView visibleCells]];
+    
+    for (BLCMediaTableViewCell *cell in cellsForImages) {
+        if (cell.mediaItem.image == BLCMediaDownloadStateNeedsImage) {
+            [[BLCDataSource sharedInstance] downloadImageForMediaItem:cell.mediaItem];
+        }
+    }
+}
+
+- (void) scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
+    NSMutableArray *cellsForImages = [[NSMutableArray alloc] initWithArray:[self.tableView visibleCells]];
+    
+    for (BLCMediaTableViewCell *cell in cellsForImages) {
+        if (cell.mediaItem.image == BLCMediaDownloadStateNeedsImage) {
+            [[BLCDataSource sharedInstance] downloadImageForMediaItem:cell.mediaItem];
+        }
+    }
 }
 
 #pragma mark - BLCMediaTableViewDelegate
@@ -173,6 +194,14 @@
     cell.mediaItem = [BLCDataSource sharedInstance].mediaItems[indexPath.row];
     return cell;
 }
+
+////the table view sends this message to its delegate just before it uses cell to draw a row
+//- (void) tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+//    BLCMedia *mediaItem = [BLCDataSource sharedInstance].mediaItems[indexPath.row];
+//    if (mediaItem.downloadState == BLCMediaDownloadStateNeedsImage) {
+//        [[BLCDataSource sharedInstance] downloadImageForMediaItem:mediaItem];
+//    }
+//}
 
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     BLCMedia *item = [self items][indexPath.row];
