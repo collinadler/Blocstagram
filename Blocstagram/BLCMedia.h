@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "BLCLikeButton.h"
 
 //This code declares BLCMediaDownloadState as equivalent to NSInteger, with four predefined values (0, 1, 2, and 3.) A BLCMediaDownloadState can theoretically be used anywhere an NSInteger can, since it's the same. If you don't set a default value in code, the default will be 0 (BLCMediaDownloadStateNeedsImgage). 
 typedef NS_ENUM(NSInteger, BLCMediaDownloadState) {
@@ -29,6 +30,8 @@ typedef NS_ENUM(NSInteger, BLCMediaDownloadState) {
 @property (nonatomic, strong) UIImage *image;
 @property (nonatomic, strong) NSString *caption;
 @property (nonatomic, strong) NSArray *comments;
+
+@property (nonatomic, assign) BLCLikeState likeState;
 
 //keep track of a media item's download state in a property
 @property (nonatomic, assign) BLCMediaDownloadState downloadState;

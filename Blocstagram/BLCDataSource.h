@@ -30,4 +30,6 @@ typedef void (^BLCNewItemCompletionBlock)(NSError *error);
 
 - (void) downloadImageForMediaItem:(BLCMedia *)mediaItem;
 
+//toggles like data based on if a user hits the like button
+- (void) toggleLikeOnMediaItem:(BLCMedia *)mediaItem;
 @end

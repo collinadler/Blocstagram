@@ -126,28 +126,28 @@
 
 #pragma mark - UIScrollViewDelegate
 
-//this method is called whenever the user scrolls (obviously, its called repeatedly. Thus, when we scroll to the end, it will invoke the infinitescrollifnecessary method
+////this method is called whenever the user scrolls (obviously, its called repeatedly. Thus, when we scroll to the end, it will invoke the infinitescrollifnecessary method
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self infiniteScrollIfNecessary];
 
-    NSMutableArray *cellsForImages = [[NSMutableArray alloc] initWithArray:[self.tableView visibleCells]];
-    
-    for (BLCMediaTableViewCell *cell in cellsForImages) {
-        if (cell.mediaItem.image == BLCMediaDownloadStateNeedsImage) {
-            [[BLCDataSource sharedInstance] downloadImageForMediaItem:cell.mediaItem];
-        }
-    }
+//    NSMutableArray *cellsForImages = [[NSMutableArray alloc] initWithArray:[self.tableView visibleCells]];
+//    
+//    for (BLCMediaTableViewCell *cell in cellsForImages) {
+//        if (cell.mediaItem.image == BLCMediaDownloadStateNeedsImage) {
+//            [[BLCDataSource sharedInstance] downloadImageForMediaItem:cell.mediaItem];
+//        }
+//    }
 }
-
-- (void) scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-    NSMutableArray *cellsForImages = [[NSMutableArray alloc] initWithArray:[self.tableView visibleCells]];
-    
-    for (BLCMediaTableViewCell *cell in cellsForImages) {
-        if (cell.mediaItem.image == BLCMediaDownloadStateNeedsImage) {
-            [[BLCDataSource sharedInstance] downloadImageForMediaItem:cell.mediaItem];
-        }
-    }
-}
+//
+//- (void) scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
+//    NSMutableArray *cellsForImages = [[NSMutableArray alloc] initWithArray:[self.tableView visibleCells]];
+//    
+//    for (BLCMediaTableViewCell *cell in cellsForImages) {
+//        if (cell.mediaItem.image == BLCMediaDownloadStateNeedsImage) {
+//            [[BLCDataSource sharedInstance] downloadImageForMediaItem:cell.mediaItem];
+//        }
+//    }
+//}
 
 #pragma mark - BLCMediaTableViewDelegate
 
@@ -176,6 +176,10 @@
         UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsToShare applicationActivities:nil];
         [self presentViewController:activityVC animated:YES completion:nil];
     }
+}
+
+- (void) cellDidPressLikeButton:(BLCMediaTableViewCell *)cell {
+    [[BLCDataSource sharedInstance] toggleLikeOnMediaItem:cell.mediaItem];
 }
 
 #pragma mark - Table view data source

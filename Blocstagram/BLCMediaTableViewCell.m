@@ -10,6 +10,7 @@
 #import "BLCMedia.h"
 #import "BLCComment.h"
 #import "BLCUser.h"
+#import "BLCLikeButton.h"
 
 @interface BLCMediaTableViewCell () <UIGestureRecognizerDelegate>
 
@@ -23,6 +24,8 @@
 @property (nonatomic, strong) UITapGestureRecognizer *tapGestureRecognizer;
 @property (nonatomic, strong) UILongPressGestureRecognizer *longPressGestureRecognizer;
 @property (nonatomic, strong) UITapGestureRecognizer *doubleTapGestureRecognizer;
+
+@property (nonatomic, strong) BLCLikeButton *likeButton;
 
 @end
 
@@ -78,13 +81,19 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
         self.commentLabel.numberOfLines = 0;
         self.commentLabel.backgroundColor = commentLabelGray;
         
-        for (UIView *view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel]) {
+        self.likeButton = [[BLCLikeButton alloc] init];
+        [self.likeButton addTarget:self
+                            action:@selector(likePressed:)
+                  forControlEvents:UIControlEventTouchUpInside];
+        self.likeButton.backgroundColor = usernameLabelGray;
+        
+        for (UIView *view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel, self.likeButton]) {
             [self.contentView addSubview:view];
             //this converts the auto-resizing mask we learned into constraints automatically. we usually set to NO when working with auto-layout
             view.translatesAutoresizingMaskIntoConstraints = NO;
         }
         
-        NSDictionary *viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel);
+        NSDictionary *viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton);
         
         //"H:|[_mediaImageView]| -> means _mediaImageView should exactly match the width of its superview
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_mediaImageView]|"
@@ -93,13 +102,15 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
                                                                                    views:viewDictionary]];
         
         //"H:|[_usernameAndCaption Label / commentLabel]| -> means both views should exactly match the width of the superview
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel]|"
-                                                                                 options:kNilOptions
+        //set an explicit width of 38 for the like button
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel][_likeButton(==38)]|"
+                                                                                 options:NSLayoutFormatAlignAllTop | NSLayoutFormatAlignAllBottom
                                                                                  metrics:nil
                                                                                    views:viewDictionary]];
+        
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentLabel]|" options:kNilOptions metrics:nil views:viewDictionary]];
         
-        //"V:|[_mediaImageView][_usernameAndCapitoionLabel][_commentLabel] -> means the three views should stack on top of eachother, with no space in between
+        //"V:|[_mediaImageView][_usernameAndCapitionLabel][_commentLabel] -> means the three views should stack on top of eachother, with no space in between
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel]"
                                                                                  options:kNilOptions
                                                                                  metrics:nil
@@ -165,6 +176,7 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     self.mediaImageView.image = _mediaItem.image;
     self.usernameAndCaptionLabel.attributedText = [self usernameAndCaptionString];
     self.commentLabel.attributedText = [self commentString];
+    self.likeButton.likeButtonState = mediaItem.likeState;
 }
 
 - (NSAttributedString *) usernameAndCaptionString {
@@ -252,6 +264,10 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
 //inform the delegate when a tap is fired
 - (void) tapFired:(UITapGestureRecognizer *)sender {
     [self.delegate cell:self didTapImageView:self.mediaImageView];
+}
+
+- (void) likePressed:(UIButton *)sender {
+    [self.delegate cellDidPressLikeButton:self];
 }
 
 //inform the delegate when a long press is fired

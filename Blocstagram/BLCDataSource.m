@@ -78,11 +78,11 @@
                         
                         [self willChangeValueForKey:@"mediaItems"];
                         self.mediaItems = mutableMediaItems;
-//                        for (BLCMedia *mediaItem in self.mediaItems) {
-//                            if (!mediaItem.image) {
-//                                [self downloadImageForMediaItem:mediaItem];                                
-//                            }
-//                        }
+                        for (BLCMedia *mediaItem in self.mediaItems) {
+                            if (!mediaItem.image) {
+                                [self downloadImageForMediaItem:mediaItem];                                
+                            }
+                        }
                         [self didChangeValueForKey:@"mediaItems"];
                         [[BLCDataSource sharedInstance] requestNewItemsWithCompletionHandler:nil];
                     } else {
@@ -158,7 +158,7 @@
         
         if (mediaItem) {
             [tmpMediaItems addObject:mediaItem];
-//            [self downloadImageForMediaItem:mediaItem];
+            [self downloadImageForMediaItem:mediaItem];
         }
     }
     //informs the KVO system that self.mediaItems is about to be replaced - trigers the notification to the table view to reload the data
@@ -322,6 +322,43 @@
             }
         }];
     }
+}
+
+#pragma mark - Liking Media Items
+
+- (void) toggleLikeOnMediaItem:(BLCMedia *)mediaItem {
+    NSString *urlString = [NSString stringWithFormat:@"media/%@/likes", mediaItem.idNumber];
+    NSDictionary *parameters = @{@"access_token" : self.accessToken};
+    
+    if (mediaItem.likeState == BLCLikeStateNotLiked) {
+        //this will show the circular animation
+        mediaItem.likeState = BLCLikeStateLiking;
+        
+        [self.instagramOperationManager POST:urlString parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            mediaItem.likeState = BLCLikeStateLiked;
+            [self reloadMediaItem:mediaItem];
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            mediaItem.likeState = BLCLikeStateNotLiked;
+            [self reloadMediaItem:mediaItem];
+        }];
+    } else if (mediaItem.likeState == BLCLikeStateLiked) {
+        mediaItem.likeState = BLCLikeStateUnliking;
+        
+        [self.instagramOperationManager DELETE:urlString parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            mediaItem.likeState = BLCLikeStateNotLiked;
+            [self reloadMediaItem:mediaItem];
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            mediaItem.likeState = BLCLikeStateLiked;
+            [self reloadMediaItem:mediaItem];
+        }];
+    }
+    [self reloadMediaItem:mediaItem];
+}
+
+- (void) reloadMediaItem:(BLCMedia *)mediaItem {
+    NSMutableArray *mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+    NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
+    [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem];
 }
 
 #pragma mark - NSKeyedArchiver
