@@ -26,6 +26,7 @@
 @property (nonatomic, strong) UITapGestureRecognizer *doubleTapGestureRecognizer;
 
 @property (nonatomic, strong) BLCLikeButton *likeButton;
+@property (nonatomic, strong) UILabel *likeCount;
 
 @end
 
@@ -87,13 +88,16 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
                   forControlEvents:UIControlEventTouchUpInside];
         self.likeButton.backgroundColor = usernameLabelGray;
         
-        for (UIView *view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel, self.likeButton]) {
+        self.likeCount = [[UILabel alloc] init];
+        self.backgroundColor = usernameLabelGray;
+        
+        for (UIView *view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel, self.likeCount, self.likeButton]) {
             [self.contentView addSubview:view];
             //this converts the auto-resizing mask we learned into constraints automatically. we usually set to NO when working with auto-layout
             view.translatesAutoresizingMaskIntoConstraints = NO;
         }
         
-        NSDictionary *viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton);
+        NSDictionary *viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton, _likeCount);
         
         //"H:|[_mediaImageView]| -> means _mediaImageView should exactly match the width of its superview
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_mediaImageView]|"
@@ -103,14 +107,14 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
         
         //"H:|[_usernameAndCaption Label / commentLabel]| -> means both views should exactly match the width of the superview
         //set an explicit width of 38 for the like button
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel][_likeButton(==38)]|"
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_usernameAndCaptionLabel][_likeCount][_likeButton(==38)]|"
                                                                                  options:NSLayoutFormatAlignAllTop | NSLayoutFormatAlignAllBottom
                                                                                  metrics:nil
                                                                                    views:viewDictionary]];
         
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentLabel]|" options:kNilOptions metrics:nil views:viewDictionary]];
         
-        //"V:|[_mediaImageView][_usernameAndCapitionLabel][_commentLabel] -> means the three views should stack on top of eachother, with no space in between
+        //"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel] -> means the three views should stack on top of eachother, with no space in between
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel]"
                                                                                  options:kNilOptions
                                                                                  metrics:nil
@@ -177,6 +181,17 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     self.usernameAndCaptionLabel.attributedText = [self usernameAndCaptionString];
     self.commentLabel.attributedText = [self commentString];
     self.likeButton.likeButtonState = mediaItem.likeState;
+    self.likeCount.attributedText = [self likeCountString];
+}
+
+- (NSAttributedString *) likeCountString {
+    CGFloat likeCountFontSize = 15;
+    NSString *baseString = [NSString stringWithFormat:@"%ld", self.mediaItem.likeCount];
+    
+    NSMutableAttributedString *mutablelikeCountString = [[NSMutableAttributedString alloc] initWithString:baseString
+                                                                                               attributes:@{NSFontAttributeName : [lightFont fontWithSize:likeCountFontSize],
+                                                                                                            NSParagraphStyleAttributeName : paragraphStyle}];
+    return mutablelikeCountString;
 }
 
 - (NSAttributedString *) usernameAndCaptionString {

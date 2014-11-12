@@ -336,6 +336,7 @@
         
         [self.instagramOperationManager POST:urlString parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
             mediaItem.likeState = BLCLikeStateLiked;
+            mediaItem.likeCount +=1;
             [self reloadMediaItem:mediaItem];
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             mediaItem.likeState = BLCLikeStateNotLiked;
@@ -346,6 +347,7 @@
         
         [self.instagramOperationManager DELETE:urlString parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
             mediaItem.likeState = BLCLikeStateNotLiked;
+            mediaItem.likeCount -=1;
             [self reloadMediaItem:mediaItem];
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             mediaItem.likeState = BLCLikeStateLiked;

@@ -31,8 +31,8 @@
         
         //this provides a buffer between the edge of the button and the content
         self.contentEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
-        //specified the alignment of the button's content. by default, its centered, but we want it at teh top so that the like button isn't misaligned on photos with longer captions
-        self.contentVerticalAlignment = UIControlContentVerticalAlignmentTop;
+        //specified the alignment of the button's content. by default, its centered, but we want it at teh top so that the like button isn't misaligned on photos with longer captions (i commented this out because it was having the opposite effect)
+//        self.contentVerticalAlignment = UIControlContentVerticalAlignmentTop;
         
         self.likeButtonState = BLCLikeStateNotLiked;
     }
