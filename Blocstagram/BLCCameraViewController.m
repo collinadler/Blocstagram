@@ -287,6 +287,8 @@
             
             image = [image imageCroppedToRect:cropRect];
             
+//            image = [image imageByScalingToSize:self.captureVideoPreviewLayer.bounds.size andCroppingWithRect:cropRect];
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.delegate cameraViewController:self didCompleteWithImage:image];
             });
