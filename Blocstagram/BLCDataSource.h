@@ -35,4 +35,6 @@ typedef void (^BLCNewItemCompletionBlock)(NSError *error);
 
 - (void) commentOnMediaItem:(BLCMedia *)mediaItem withCommentText:(NSString *)commentText;
 
+- (void) archiveData;
+
 @end

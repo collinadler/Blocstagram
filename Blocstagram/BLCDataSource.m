@@ -29,6 +29,8 @@
 //add a property for the manager
 @property (nonatomic, strong) AFHTTPRequestOperationManager *instagramOperationManager;
 
+@property (nonatomic, assign) BOOL hasDataChanged;
+
 @end
 
 @implementation BLCDataSource
@@ -180,27 +182,14 @@
     } else {
         [self willChangeValueForKey:@"mediaItems"];
         self.mediaItems = tmpMediaItems;
+        self.hasDataChanged = YES;
         [self didChangeValueForKey:@"mediaItems"];
     }
     
-    if (tmpMediaItems.count > 0) {
-        //write the changes to disk. similar to connecting to teh internet, reading / writing to the disk can be slow so its best to dispatch_async onto a background queue to do the work you need
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSUInteger numberOfItemsToSave = MIN(self.mediaItems.count, 50);
-            NSArray *mediaItemsToSave = [self.mediaItems subarrayWithRange:NSMakeRange(0, numberOfItemsToSave)];
-
-            NSString *fullPath = [self pathForFilename:NSStringFromSelector(@selector(mediaItems))];
-            //then save it as an NSData to the disk
-            NSData *mediaItemData = [NSKeyedArchiver archivedDataWithRootObject:mediaItemsToSave];
-            NSError *dataError;
-            // the two options ensures the complete file is save and encryts it, respecitvely
-            BOOL wroteSuccessfully = [mediaItemData writeToFile:fullPath options:NSDataWritingAtomic | NSDataWritingFileProtectionCompleteUnlessOpen error:&dataError];
-            
-            if (!wroteSuccessfully) {
-                NSLog(@"Couldn't write file: %@", dataError);
-            }
-        });
-    }
+//    if (tmpMediaItems.count > 0) {
+//        //write the changes to disk. similar to connecting to teh internet, reading / writing to the disk can be slow so its best to dispatch_async onto a background queue to do the work you need
+//        [self archiveData];
+//    }
 }
 
 - (void) downloadImageForMediaItem:(BLCMedia *)mediaItem {
@@ -338,21 +327,8 @@
             mediaItem.likeState = BLCLikeStateLiked;
             mediaItem.likeCount +=1;
             [self reloadMediaItem:mediaItem];
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                NSUInteger numberOfItemsToSave = MIN(self.mediaItems.count, 50);
-                NSArray *mediaItemsToSave = [self.mediaItems subarrayWithRange:NSMakeRange(0, numberOfItemsToSave)];
-
-                NSString *fullPath = [self pathForFilename:NSStringFromSelector(@selector(mediaItems))];
-                //then save it as an NSData to the disk
-                NSData *mediaItemData = [NSKeyedArchiver archivedDataWithRootObject:mediaItemsToSave];
-                NSError *dataError;
-                // the two options ensures the complete file is save and encryts it, respecitvely
-                BOOL wroteSuccessfully = [mediaItemData writeToFile:fullPath options:NSDataWritingAtomic | NSDataWritingFileProtectionCompleteUnlessOpen error:&dataError];
-                if (!wroteSuccessfully) {
-                    NSLog(@"Couldn't write file: %@", dataError);
-                }
-            });
+            self.hasDataChanged = YES;
+//            [self archiveData];
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             mediaItem.likeState = BLCLikeStateNotLiked;
@@ -365,6 +341,7 @@
             mediaItem.likeState = BLCLikeStateNotLiked;
             mediaItem.likeCount -=1;
             [self reloadMediaItem:mediaItem];
+            self.hasDataChanged = YES;
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             mediaItem.likeState = BLCLikeStateLiked;
             [self reloadMediaItem:mediaItem];
@@ -377,6 +354,28 @@
     NSMutableArray *mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
     NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
     [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem];
+}
+
+- (void) archiveData {
+    if (self.hasDataChanged) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSUInteger numberOfItemsToSave = MIN(self.mediaItems.count, 50);
+            NSArray *mediaItemsToSave = [self.mediaItems subarrayWithRange:NSMakeRange(0, numberOfItemsToSave)];
+            
+            NSString *fullPath = [self pathForFilename:NSStringFromSelector(@selector(mediaItems))];
+            //then save it as an NSData to the disk
+            NSData *mediaItemData = [NSKeyedArchiver archivedDataWithRootObject:mediaItemsToSave];
+            NSError *dataError;
+            // the two options ensures the complete file is save and encryts it, respecitvely
+            BOOL wroteSuccessfully = [mediaItemData writeToFile:fullPath options:NSDataWritingAtomic | NSDataWritingFileProtectionCompleteUnlessOpen error:&dataError];
+            
+            if (!wroteSuccessfully) {
+                NSLog(@"Couldn't write file: %@", dataError);
+            } else {
+                self.hasDataChanged = NO;
+            }
+        });
+    }
 }
 
 #pragma mark - Comments
