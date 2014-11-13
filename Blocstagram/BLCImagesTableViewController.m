@@ -14,8 +14,9 @@
 #import "BLCMediaTableViewCell.h"
 #import "BLCMediaFullScreenViewController.h"
 #import "BLCMediaFullScreenAnimator.h"
+#import "BLCCameraViewController.h"
 
-@interface BLCImagesTableViewController () <BLCMediaTableViewDelegate, UIViewControllerTransitioningDelegate>
+@interface BLCImagesTableViewController () <BLCMediaTableViewDelegate, UIViewControllerTransitioningDelegate, BLCCameraViewControllerDelegate>
 
 //add a proprety for the animation controller to track which view was tapped most recently
 @property (nonatomic, weak) UIImageView *lastTappedImageView;
@@ -56,6 +57,13 @@
     
     //this lets teh user slide the keyboard down like in teh messenger app
     self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
+    
+    //if photo capabilities are available (either through the camera or existing pictures), make a camera button
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera] ||
+        [UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
+        UIBarButtonItem *cameraButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:@selector(cameraPressed:)];
+        self.navigationItem.rightBarButtonItem = cameraButton;
+    }
     
     //these notifications will call their selectors before the keyboard shows/hides
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -272,6 +280,26 @@
 //Code for the checkpoint assignment
 - (NSArray *) items {
     return [BLCDataSource sharedInstance].mediaItems;
+}
+
+#pragma mark - Camera and BLCCameraViewControllerDelegate
+
+- (void) cameraPressed:(UIBarButtonItem *)sender {
+    BLCCameraViewController *cameraVC = [[BLCCameraViewController alloc] init];
+    cameraVC.delegate = self;
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:cameraVC];
+    [self presentViewController:nav animated:YES completion:nil];
+    return;
+}
+
+- (void) cameraViewController:(BLCCameraViewController *)cameraViewController didCompleteWithImage:(UIImage *)image {
+    [cameraViewController dismissViewControllerAnimated:YES completion:^{
+        if (image) {
+            NSLog(@"Got an image!");
+        } else {
+            NSLog(@"Closed without an image");
+        }
+    }];
 }
 
 #pragma mark - UIViewControllerTransitioningDelegate
