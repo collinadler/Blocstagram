@@ -26,6 +26,7 @@
 		279AAA301A0E9E5D00542A07 /* BLCMediaFullScreenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 279AAA2F1A0E9E5D00542A07 /* BLCMediaFullScreenViewController.m */; };
 		27AC6ACF1A09A09C0070733B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27AC6ACE1A09A09C0070733B /* Default-568h@2x.png */; };
 		27AC6AD21A09F2200070733B /* BLCLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 27AC6AD11A09F2200070733B /* BLCLoginViewController.m */; };
+		27B423251A13D3D600630AA5 /* BLCComposeCommentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 27B423241A13D3D600630AA5 /* BLCComposeCommentView.m */; };
 		27C996B41A03FBE800B849D5 /* BLCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 27C996B31A03FBE800B849D5 /* BLCUser.m */; };
 		27C996B71A03FDF400B849D5 /* BLCMedia.m in Sources */ = {isa = PBXBuildFile; fileRef = 27C996B61A03FDF400B849D5 /* BLCMedia.m */; };
 		27C996BA1A03FF9300B849D5 /* BLCComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 27C996B91A03FF9300B849D5 /* BLCComment.m */; };
@@ -75,6 +76,8 @@
 		27AC6ACE1A09A09C0070733B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		27AC6AD01A09F2200070733B /* BLCLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BLCLoginViewController.h; path = ../BLCLoginViewController.h; sourceTree = "<group>"; };
 		27AC6AD11A09F2200070733B /* BLCLoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BLCLoginViewController.m; path = ../BLCLoginViewController.m; sourceTree = "<group>"; };
+		27B423231A13D3D600630AA5 /* BLCComposeCommentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLCComposeCommentView.h; sourceTree = "<group>"; };
+		27B423241A13D3D600630AA5 /* BLCComposeCommentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCComposeCommentView.m; sourceTree = "<group>"; };
 		27C996B21A03FBE800B849D5 /* BLCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLCUser.h; sourceTree = "<group>"; };
 		27C996B31A03FBE800B849D5 /* BLCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCUser.m; sourceTree = "<group>"; };
 		27C996B51A03FDF400B849D5 /* BLCMedia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLCMedia.h; sourceTree = "<group>"; };
@@ -147,16 +150,18 @@
 				279AAA2F1A0E9E5D00542A07 /* BLCMediaFullScreenViewController.m */,
 				27CD83571A07EF7A00855D52 /* BLCMediaTableViewCell.h */,
 				27CD83581A07EF7A00855D52 /* BLCMediaTableViewCell.m */,
+				27D518381A12C3F6008F6675 /* BLCCircleSpinnerView.h */,
+				27D518391A12C3F6008F6675 /* BLCCircleSpinnerView.m */,
+				27D5183B1A12DB27008F6675 /* BLCLikeButton.h */,
+				27D5183C1A12DB27008F6675 /* BLCLikeButton.m */,
+				27B423231A13D3D600630AA5 /* BLCComposeCommentView.h */,
+				27B423241A13D3D600630AA5 /* BLCComposeCommentView.m */,
 				27C996B21A03FBE800B849D5 /* BLCUser.h */,
 				27C996B31A03FBE800B849D5 /* BLCUser.m */,
 				27C996B51A03FDF400B849D5 /* BLCMedia.h */,
 				27C996B61A03FDF400B849D5 /* BLCMedia.m */,
 				27C996B81A03FF9300B849D5 /* BLCComment.h */,
 				27C996B91A03FF9300B849D5 /* BLCComment.m */,
-				27D518381A12C3F6008F6675 /* BLCCircleSpinnerView.h */,
-				27D518391A12C3F6008F6675 /* BLCCircleSpinnerView.m */,
-				27D5183B1A12DB27008F6675 /* BLCLikeButton.h */,
-				27D5183C1A12DB27008F6675 /* BLCLikeButton.m */,
 				275BD3351A0F4A3100A4164A /* BLCMediaFullScreenAnimator.h */,
 				275BD3361A0F4A3100A4164A /* BLCMediaFullScreenAnimator.m */,
 				27C996BB1A04040500B849D5 /* BLCDataSource.h */,
@@ -393,6 +398,7 @@
 				27C996BD1A04040500B849D5 /* BLCDataSource.m in Sources */,
 				27AC6AD21A09F2200070733B /* BLCLoginViewController.m in Sources */,
 				27C996BA1A03FF9300B849D5 /* BLCComment.m in Sources */,
+				27B423251A13D3D600630AA5 /* BLCComposeCommentView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

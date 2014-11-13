@@ -338,6 +338,22 @@
             mediaItem.likeState = BLCLikeStateLiked;
             mediaItem.likeCount +=1;
             [self reloadMediaItem:mediaItem];
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                NSUInteger numberOfItemsToSave = MIN(self.mediaItems.count, 50);
+                NSArray *mediaItemsToSave = [self.mediaItems subarrayWithRange:NSMakeRange(0, numberOfItemsToSave)];
+
+                NSString *fullPath = [self pathForFilename:NSStringFromSelector(@selector(mediaItems))];
+                //then save it as an NSData to the disk
+                NSData *mediaItemData = [NSKeyedArchiver archivedDataWithRootObject:mediaItemsToSave];
+                NSError *dataError;
+                // the two options ensures the complete file is save and encryts it, respecitvely
+                BOOL wroteSuccessfully = [mediaItemData writeToFile:fullPath options:NSDataWritingAtomic | NSDataWritingFileProtectionCompleteUnlessOpen error:&dataError];
+                if (!wroteSuccessfully) {
+                    NSLog(@"Couldn't write file: %@", dataError);
+                }
+            });
+            
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             mediaItem.likeState = BLCLikeStateNotLiked;
             [self reloadMediaItem:mediaItem];
@@ -361,6 +377,40 @@
     NSMutableArray *mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
     NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
     [mutableArrayWithKVO replaceObjectAtIndex:index withObject:mediaItem];
+}
+
+#pragma mark - Comments
+
+- (void) commentOnMediaItem:(BLCMedia *)mediaItem withCommentText:(NSString *)commentText {
+    if (!commentText || commentText.length == 0) {
+        return;
+    }
+    
+    NSString *urlString = [NSString stringWithFormat:@"media/%@/comments", mediaItem.idNumber];
+    NSDictionary *parameters = @{@"access_token" : self.accessToken, @"text" : commentText};
+    
+    [self.instagramOperationManager POST:urlString
+                              parameters:parameters
+                                 success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                     mediaItem.temporaryComment = nil;
+                                     
+                                     NSString *refreshMediaURLString = [NSString stringWithFormat:@"media/%@", mediaItem.idNumber];
+                                     NSDictionary *parameters = @{@"access_token" : self.accessToken};
+                                     [self.instagramOperationManager GET:refreshMediaURLString
+                                                              parameters:parameters
+                                                                 success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                                                     BLCMedia *newMediaItem = [[BLCMedia alloc] initWithDictionary:responseObject];
+                                                                     NSMutableArray *mutableArrayWithKVO = [self mutableArrayValueForKey:@"mediaItems"];
+                                                                     NSUInteger index = [mutableArrayWithKVO indexOfObject:mediaItem];
+                                                                     [mutableArrayWithKVO replaceObjectAtIndex:index withObject:newMediaItem];
+                                                                 } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                                                     [self reloadMediaItem:mediaItem];
+                                                                 }];
+                                 } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                     NSLog(@"Error: %@", error);
+                                     NSLog(@"Response: %@", operation.responseString);
+                                     [self reloadMediaItem:mediaItem];
+                                 }];
 }
 
 #pragma mark - NSKeyedArchiver

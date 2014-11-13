@@ -29,14 +29,17 @@ Finally, we inform the transition context when the animation is completed.
     UIViewController *fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
     UIViewController *toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
     
+    UIView *fromViewControllerView = [transitionContext viewForKey:UITransitionContextFromViewKey];
+    UIView *toViewControllerView = [transitionContext viewForKey:UITransitionContextToViewKey];
+    
     if (self.presenting) { //will occur after the user taps an image
         BLCMediaFullScreenViewController *fullScreenVC = (BLCMediaFullScreenViewController *)toViewController;
         
         fromViewController.view.userInteractionEnabled = NO;
         
         //A container view contains the views of both view controllers during the animation
-        [transitionContext.containerView addSubview:fromViewController.view];
-        [transitionContext.containerView addSubview:toViewController.view];
+        [transitionContext.containerView addSubview:fromViewControllerView];
+        [transitionContext.containerView addSubview:toViewControllerView];
         
         //converts a view's frame or bounds from one view's coordinate system into the receiver's
         CGRect startFrame = [transitionContext.containerView convertRect:self.cellImageView.bounds fromView:self.cellImageView];
@@ -56,8 +59,8 @@ Finally, we inform the transition context when the animation is completed.
             [transitionContext completeTransition:YES];
         }];
     } else {
-        [transitionContext.containerView addSubview:toViewController.view];
-        [transitionContext.containerView addSubview:fromViewController.view];
+        [transitionContext.containerView addSubview:toViewControllerView];
+        [transitionContext.containerView addSubview:fromViewControllerView];
         
         BLCMediaFullScreenViewController *fullScreenVC = (BLCMediaFullScreenViewController *)fromViewController;
         

@@ -32,4 +32,7 @@ typedef void (^BLCNewItemCompletionBlock)(NSError *error);
 
 //toggles like data based on if a user hits the like button
 - (void) toggleLikeOnMediaItem:(BLCMedia *)mediaItem;
+
+- (void) commentOnMediaItem:(BLCMedia *)mediaItem withCommentText:(NSString *)commentText;
+
 @end

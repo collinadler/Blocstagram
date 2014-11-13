@@ -34,6 +34,9 @@ typedef NS_ENUM(NSInteger, BLCMediaDownloadState) {
 
 @property (nonatomic, assign) BLCLikeState likeState;
 
+//store a comment as its being written
+@property (nonatomic, strong) NSString *temporaryComment;
+
 //keep track of a media item's download state in a property
 @property (nonatomic, assign) BLCMediaDownloadState downloadState;
 

@@ -11,8 +11,9 @@
 #import "BLCComment.h"
 #import "BLCUser.h"
 #import "BLCLikeButton.h"
+#import "BLCComposeCommentView.h"
 
-@interface BLCMediaTableViewCell () <UIGestureRecognizerDelegate>
+@interface BLCMediaTableViewCell () <UIGestureRecognizerDelegate, BLCComposeCommentViewDelegate>
 
 @property (nonatomic, strong) UIImageView *mediaImageView;
 @property (nonatomic, strong) UILabel *usernameAndCaptionLabel;
@@ -27,6 +28,7 @@
 
 @property (nonatomic, strong) BLCLikeButton *likeButton;
 @property (nonatomic, strong) UILabel *likeCount;
+@property (nonatomic, strong, readwrite) BLCComposeCommentView *commentView;
 
 @end
 
@@ -91,13 +93,16 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
         self.likeCount = [[UILabel alloc] init];
         self.backgroundColor = usernameLabelGray;
         
-        for (UIView *view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel, self.likeCount, self.likeButton]) {
+        self.commentView = [[BLCComposeCommentView alloc] init];
+        self.commentView.delegate = self;
+        
+        for (UIView *view in @[self.mediaImageView, self.usernameAndCaptionLabel, self.commentLabel, self.likeCount, self.likeButton, self.commentView]) {
             [self.contentView addSubview:view];
             //this converts the auto-resizing mask we learned into constraints automatically. we usually set to NO when working with auto-layout
             view.translatesAutoresizingMaskIntoConstraints = NO;
         }
         
-        NSDictionary *viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton, _likeCount);
+        NSDictionary *viewDictionary = NSDictionaryOfVariableBindings(_mediaImageView, _usernameAndCaptionLabel, _commentLabel, _likeButton, _likeCount, _commentView);
         
         //"H:|[_mediaImageView]| -> means _mediaImageView should exactly match the width of its superview
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_mediaImageView]|"
@@ -112,10 +117,18 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
                                                                                  metrics:nil
                                                                                    views:viewDictionary]];
         
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentLabel]|" options:kNilOptions metrics:nil views:viewDictionary]];
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentLabel]|"
+                                                                                 options:kNilOptions
+                                                                                 metrics:nil
+                                                                                   views:viewDictionary]];
+        
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_commentView]|"
+                                                                                 options:kNilOptions
+                                                                                 metrics:nil
+                                                                                views:viewDictionary]];
         
         //"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel] -> means the three views should stack on top of eachother, with no space in between
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel]"
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_mediaImageView][_usernameAndCaptionLabel][_commentLabel][_commentView(==100)]"
                                                                                  options:kNilOptions
                                                                                  metrics:nil
                                                                                    views:viewDictionary]];
@@ -182,6 +195,7 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     self.commentLabel.attributedText = [self commentString];
     self.likeButton.likeButtonState = mediaItem.likeState;
     self.likeCount.attributedText = [self likeCountString];
+    self.commentView.text = mediaItem.temporaryComment;
 }
 
 - (NSAttributedString *) likeCountString {
@@ -255,8 +269,8 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     [layoutCell setNeedsLayout];
     [layoutCell layoutIfNeeded];
     
-    // get the actual height required for the cell
-    return CGRectGetMaxY(layoutCell.commentLabel.frame);
+    // get the actual height required for the cell - the height is equal to the Y-coordinate of the bottom of the bottommost view
+    return CGRectGetMaxY(layoutCell.commentView.frame);
     
 }
 
@@ -297,6 +311,27 @@ static NSParagraphStyle *paragraphStyle; //lets us set properties like line spac
     if (!self.mediaItem.image) {
 //insert checkpoint code here
     }
+}
+
+#pragma mark - BLCComposeCommentViewDelegate
+
+//the cell simply tells its delegate (the images table controller) that a comment was composed or that the user began editing
+- (void) commentViewDidPressCommentButton:(BLCComposeCommentView *)sender {
+    [self.delegate cell:self didComposeComment:self.mediaItem.temporaryComment];
+}
+
+//hang on to the text written so far in temporaryComment. This allows a user to scroll up and down the table without losing any partially written comments
+- (void) commentView:(BLCComposeCommentView *)sender textDidChange:(NSString *)text {
+    self.mediaItem.temporaryComment = text;
+}
+
+//the cell simply tells its delegate (the images table controller) that a comment was composed or that the user began editing
+- (void) commentViewWillStartEditing:(BLCComposeCommentView *)sender {
+    [self.delegate cellWillStartComposingComment:self];
+}
+
+- (void) stopComposingComment {
+    [self.commentView stopComposingComment];
 }
 
 #pragma mark - UIGestureRecognizerDelegate
