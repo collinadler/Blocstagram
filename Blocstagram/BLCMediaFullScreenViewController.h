@@ -13,10 +13,13 @@
 
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, strong) BLCMedia *media;
 
 //create a custom view controller initializer that passes a BLCMedia to display
 - (instancetype) initWithMedia:(BLCMedia *)media;
 
 - (void) centerScrollView;
+
+- (void) recalculateZoomScale;
 
 @end

@@ -15,8 +15,9 @@
 #import "BLCMediaFullScreenViewController.h"
 #import "BLCMediaFullScreenAnimator.h"
 #import "BLCCameraViewController.h"
+#import "BLCImageLibraryCollectionViewController.h"
 
-@interface BLCImagesTableViewController () <BLCMediaTableViewDelegate, UIViewControllerTransitioningDelegate, BLCCameraViewControllerDelegate>
+@interface BLCImagesTableViewController () <BLCMediaTableViewDelegate, UIViewControllerTransitioningDelegate, BLCCameraViewControllerDelegate, BLCImageLibraryCollectionViewControllerDelegate>
 
 //add a proprety for the animation controller to track which view was tapped most recently
 @property (nonatomic, weak) UIImageView *lastTappedImageView;
@@ -282,13 +283,26 @@
     return [BLCDataSource sharedInstance].mediaItems;
 }
 
-#pragma mark - Camera and BLCCameraViewControllerDelegate
+#pragma mark - Camera, BLCCameraViewControllerDelegate, and BLCImageLibraryCollectionViewControllerDelegate
 
 - (void) cameraPressed:(UIBarButtonItem *)sender {
-    BLCCameraViewController *cameraVC = [[BLCCameraViewController alloc] init];
-    cameraVC.delegate = self;
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:cameraVC];
-    [self presentViewController:nav animated:YES completion:nil];
+    
+    UIViewController *imageVC;
+    
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+        BLCCameraViewController *cameraVC = [[BLCCameraViewController alloc] init];
+        cameraVC.delegate = self;
+        imageVC = cameraVC;
+    } else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
+        BLCImageLibraryCollectionViewController *imageLibraryVC = [[BLCImageLibraryCollectionViewController alloc] init];
+        imageLibraryVC.delegate = self;
+        imageVC = imageLibraryVC;
+    }
+    
+    if (imageVC) {
+        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:imageVC];
+        [self presentViewController:nav animated:YES completion:nil];
+    }    
     return;
 }
 
@@ -298,6 +312,16 @@
             NSLog(@"Got an image!");
         } else {
             NSLog(@"Closed without an image");
+        }
+    }];
+}
+
+- (void) imageLibraryViewController:(BLCImageLibraryCollectionViewController *)imageLibraryViewController didCompleteWithImage:(UIImage *)image {
+    [imageLibraryViewController dismissViewControllerAnimated:YES completion:^{
+        if (image) {
+            NSLog(@"Got an image!");
+        } else {
+            NSLog(@"Closed without an image.");
         }
     }];
 }
