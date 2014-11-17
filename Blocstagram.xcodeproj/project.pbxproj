@@ -26,6 +26,7 @@
 		270E5A031A02F18700F63148 /* 10.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 270E59F91A02F18700F63148 /* 10.jpg */; };
 		270E5A061A02F20A00F63148 /* BLCImagesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 270E5A051A02F20A00F63148 /* BLCImagesTableViewController.m */; };
 		275BD3371A0F4A3100A4164A /* BLCMediaFullScreenAnimator.m in Sources */ = {isa = PBXBuildFile; fileRef = 275BD3361A0F4A3100A4164A /* BLCMediaFullScreenAnimator.m */; };
+		277B27791A166CDC00A00F64 /* BLCPostToInstagramViewControllere.m in Sources */ = {isa = PBXBuildFile; fileRef = 277B27781A166CDC00A00F64 /* BLCPostToInstagramViewControllere.m */; };
 		279AAA301A0E9E5D00542A07 /* BLCMediaFullScreenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 279AAA2F1A0E9E5D00542A07 /* BLCMediaFullScreenViewController.m */; };
 		27AC6ACF1A09A09C0070733B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27AC6ACE1A09A09C0070733B /* Default-568h@2x.png */; };
 		27AC6AD21A09F2200070733B /* BLCLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 27AC6AD11A09F2200070733B /* BLCLoginViewController.m */; };
@@ -83,6 +84,8 @@
 		270E5A051A02F20A00F63148 /* BLCImagesTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCImagesTableViewController.m; sourceTree = "<group>"; };
 		275BD3351A0F4A3100A4164A /* BLCMediaFullScreenAnimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLCMediaFullScreenAnimator.h; sourceTree = "<group>"; };
 		275BD3361A0F4A3100A4164A /* BLCMediaFullScreenAnimator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCMediaFullScreenAnimator.m; sourceTree = "<group>"; };
+		277B27771A166CDC00A00F64 /* BLCPostToInstagramViewControllere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLCPostToInstagramViewControllere.h; sourceTree = "<group>"; };
+		277B27781A166CDC00A00F64 /* BLCPostToInstagramViewControllere.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCPostToInstagramViewControllere.m; sourceTree = "<group>"; };
 		279AAA2E1A0E9E5D00542A07 /* BLCMediaFullScreenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLCMediaFullScreenViewController.h; sourceTree = "<group>"; };
 		279AAA2F1A0E9E5D00542A07 /* BLCMediaFullScreenViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCMediaFullScreenViewController.m; sourceTree = "<group>"; };
 		27AC6ACE1A09A09C0070733B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -186,6 +189,8 @@
 				27B4232A1A143DE200630AA5 /* BLCCameraViewController.m */,
 				270C7C8D1A15516400365B3B /* BLCImageLibraryCollectionViewController.h */,
 				270C7C8E1A15516400365B3B /* BLCImageLibraryCollectionViewController.m */,
+				277B27771A166CDC00A00F64 /* BLCPostToInstagramViewControllere.h */,
+				277B27781A166CDC00A00F64 /* BLCPostToInstagramViewControllere.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -467,6 +472,7 @@
 				27C996BA1A03FF9300B849D5 /* BLCComment.m in Sources */,
 				27B423251A13D3D600630AA5 /* BLCComposeCommentView.m in Sources */,
 				27B423311A1480AB00630AA5 /* UIImage+BLCImageUtilities.m in Sources */,
+				277B27791A166CDC00A00F64 /* BLCPostToInstagramViewControllere.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

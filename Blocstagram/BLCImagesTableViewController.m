@@ -16,6 +16,7 @@
 #import "BLCMediaFullScreenAnimator.h"
 #import "BLCCameraViewController.h"
 #import "BLCImageLibraryCollectionViewController.h"
+#import "BLCPostToInstagramViewControllere.h"
 
 @interface BLCImagesTableViewController () <BLCMediaTableViewDelegate, UIViewControllerTransitioningDelegate, BLCCameraViewControllerDelegate, BLCImageLibraryCollectionViewControllerDelegate>
 
@@ -306,24 +307,21 @@
     return;
 }
 
+- (void) handleImage:(UIImage *)image withNavigationController:(UINavigationController *)nav {
+    if (image) {
+        BLCPostToInstagramViewControllere *postVC = [[BLCPostToInstagramViewControllere alloc] initWithImage:image];
+        [nav pushViewController:postVC animated:YES];
+    } else {
+        [nav dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
 - (void) cameraViewController:(BLCCameraViewController *)cameraViewController didCompleteWithImage:(UIImage *)image {
-    [cameraViewController dismissViewControllerAnimated:YES completion:^{
-        if (image) {
-            NSLog(@"Got an image!");
-        } else {
-            NSLog(@"Closed without an image");
-        }
-    }];
+    [self handleImage:image withNavigationController:cameraViewController.navigationController];
 }
 
 - (void) imageLibraryViewController:(BLCImageLibraryCollectionViewController *)imageLibraryViewController didCompleteWithImage:(UIImage *)image {
-    [imageLibraryViewController dismissViewControllerAnimated:YES completion:^{
-        if (image) {
-            NSLog(@"Got an image!");
-        } else {
-            NSLog(@"Closed without an image.");
-        }
-    }];
+    [self handleImage:image withNavigationController:imageLibraryViewController.navigationController];
 }
 
 #pragma mark - UIViewControllerTransitioningDelegate
