@@ -10,4 +10,7 @@
 
 @interface BLCFilterCollectionViewCell : UICollectionViewCell
 
+@property (nonatomic, strong) UIImageView *thumbnailImageView;
+@property (nonatomic, assign) NSString *title;
+
 @end

@@ -7,6 +7,8 @@
 //
 
 #import "BLCPostToInstagramViewControllere.h"
+#import "BLCFilterCollectionViewCell.h"
+
 
 @interface BLCPostToInstagramViewControllere () <UICollectionViewDataSource, UICollectionViewDelegate, UIAlertViewDelegate, UIDocumentInteractionControllerDelegate>
 
@@ -79,7 +81,7 @@
         self.navigationItem.rightBarButtonItem = self.sendBarButton;
     }
     
-    [self.filterCollectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"cell"];
+    [self.filterCollectionView registerClass:[BLCFilterCollectionViewCell class] forCellWithReuseIdentifier:@"cell"];
     
     self.view.backgroundColor = [UIColor whiteColor];
     self.filterCollectionView.backgroundColor = [UIColor whiteColor];
@@ -201,8 +203,11 @@
 #pragma mark - UICollectionView delegate and data source
 
 - (UICollectionViewCell *) collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
-    
+    BLCFilterCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
+
+    cell.thumbnailImageView.image = self.filterImages[indexPath.row];
+    cell.title = self.filterTitles[indexPath.row];
+    /*
     static NSInteger imageViewTag = 1000;
     static NSInteger labelTag = 1001;
     
@@ -231,6 +236,7 @@
     
     thumbnail.image = self.filterImages[indexPath.row];
     label.text = self.filterTitles[indexPath.row];
+     */
     
     return cell;
 }
