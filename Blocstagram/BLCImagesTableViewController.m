@@ -26,6 +26,8 @@
 @property (nonatomic, weak) UIView *lastSelectedCommentView;
 @property (nonatomic, assign) CGFloat lastKeyboardAdjustment;
 
+@property (nonatomic, strong) UIPopoverController *cameraPopover;
+
 @end
 
 @implementation BLCImagesTableViewController
@@ -76,6 +78,11 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(imageDidFinish:)
+                                                 name:BLCImageFinishedNotification
                                                object:nil];
     
     // Uncomment the following line to preserve selection between presentations.
@@ -198,8 +205,12 @@
     self.lastTappedImageView = imageView;
     BLCMediaFullScreenViewController *fullScreenVC = [[BLCMediaFullScreenViewController alloc] initWithMedia:cell.mediaItem];
     
-    fullScreenVC.transitioningDelegate = self;
-    fullScreenVC.modalPresentationStyle = UIModalPresentationCustom;
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+        fullScreenVC.transitioningDelegate = self;
+        fullScreenVC.modalPresentationStyle = UIModalPresentationCustom;
+    } else {
+        fullScreenVC.modalPresentationStyle = UIModalPresentationFormSheet;
+    }
     [self presentViewController:fullScreenVC animated:YES completion:nil];
 }
 
@@ -216,7 +227,12 @@
     
     if (itemsToShare.count > 0) {
         UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:itemsToShare applicationActivities:nil];
-        [self presentViewController:activityVC animated:YES completion:nil];
+        if (([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) == NO) {
+            self.cameraPopover = [[UIPopoverController alloc] initWithContentViewController:activityVC];
+            [self.cameraPopover presentPopoverFromRect:CGRectMake(CGRectGetMidX(cell.frame), CGRectGetMidY(cell.frame), 100, 100) inView:cell permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+        } else {
+            [self presentViewController:activityVC animated:YES completion:nil];
+        }
     }
 }
 
@@ -302,8 +318,16 @@
     
     if (imageVC) {
         UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:imageVC];
-        [self presentViewController:nav animated:YES completion:nil];
-    }    
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+            [self presentViewController:nav animated:YES completion:nil];
+        } else {
+            //when initializing a popover controller, you must always provide the content view controller
+            self.cameraPopover = [[UIPopoverController alloc] initWithContentViewController:nav];
+            self.cameraPopover.popoverContentSize = CGSizeMake(320, 568);
+            //here, we present it from the bar button item. But, they can also be presented at a specific rect in the view
+            [self.cameraPopover presentPopoverFromBarButtonItem:sender permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+        }
+    }
     return;
 }
 
@@ -312,7 +336,12 @@
         BLCPostToInstagramViewControllere *postVC = [[BLCPostToInstagramViewControllere alloc] initWithImage:image];
         [nav pushViewController:postVC animated:YES];
     } else {
-        [nav dismissViewControllerAnimated:YES completion:nil];
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+            [nav dismissViewControllerAnimated:YES completion:nil];
+        } else {
+            [self.cameraPopover dismissPopoverAnimated:YES];
+            self.cameraPopover = nil;
+        }
     }
 }
 
@@ -339,6 +368,17 @@
     BLCMediaFullScreenAnimator *animator = [BLCMediaFullScreenAnimator new];
     animator.cellImageView = self.lastTappedImageView;
     return animator;
+}
+
+#pragma mark - Popover Handling
+
+- (void) imageDidFinish:(NSNotification *)notification {
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    } else {
+        [self.cameraPopover dismissPopoverAnimated:YES];
+        self.cameraPopover = nil;
+    }
 }
 
 #pragma mark - Keyboard Handling

@@ -14,6 +14,8 @@
 @property (nonatomic, strong) UITapGestureRecognizer *tap;
 @property (nonatomic, strong) UITapGestureRecognizer *doubleTap;
 
+@property (nonatomic, strong) UITapGestureRecognizer *tapBehind;
+
 @end
 
 @implementation BLCMediaFullScreenViewController
@@ -52,6 +54,11 @@
     //allows a tap gesture to require more than one tap to fire
     self.doubleTap.numberOfTapsRequired = 2;
     
+    if (([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) == NO) {
+        self.tapBehind = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapBehindFired:)];
+        self.tapBehind.cancelsTouchesInView = NO;
+    }
+    
     //allows one gesture recognizer to wait for another gesture recognizer to fail before it succeeds
     [self.tap requireGestureRecognizerToFail:self.doubleTap];
     
@@ -79,6 +86,10 @@
     myNav.items = [NSArray arrayWithObjects:navigItem, nil];
     
     [self centerScrollView];
+    
+    if (([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) == NO) {
+        [[[[UIApplication sharedApplication] delegate] window] addGestureRecognizer:self.tapBehind];
+    }
 }
 
 - (void) viewWillLayoutSubviews {
@@ -88,6 +99,14 @@
     
     [self recalculateZoomScale];
     
+}
+
+- (void) viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+    if (([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) == NO) {
+        [[[[UIApplication sharedApplication] delegate] window] removeGestureRecognizer:self.tapBehind];
+    }
 }
 
 - (void) recalculateZoomScale {
@@ -172,6 +191,20 @@
         [self.scrollView zoomToRect:CGRectMake(x, y, width, height) animated:YES];
     } else {
         [self.scrollView setZoomScale:self.scrollView.minimumZoomScale animated:YES];
+    }
+}
+
+- (void) tapBehindFired:(UIGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateEnded) {
+        CGPoint location = [sender locationInView:nil]; //passing a nil gets us coordinates in the window
+        CGPoint locationInVC = [self.presentedViewController.view convertPoint:location fromView:self.view.window];
+        
+        if ([self.presentedViewController.view pointInside:locationInVC withEvent:nil] == NO) {
+            // the tap was outside the VC's view
+            if (self.presentingViewController) {
+                [self dismissViewControllerAnimated:YES completion:nil];
+            }
+        }
     }
 }
 

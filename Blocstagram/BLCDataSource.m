@@ -35,7 +35,7 @@
 
 @implementation BLCDataSource
 
-
+NSString *const BLCImageFinishedNotification = @"BLCImageFinishNotification";
 
 + (instancetype) sharedInstance {
     

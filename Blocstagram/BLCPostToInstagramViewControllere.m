@@ -7,6 +7,7 @@
 //
 
 #import "BLCPostToInstagramViewControllere.h"
+#import "BLCDataSource.h"
 #import "BLCFilterCollectionViewCell.h"
 
 
@@ -24,6 +25,8 @@
 
 @property (nonatomic, strong) UIButton *sendButton; //"send to insta" button
 @property (nonatomic, strong) UIBarButtonItem *sendBarButton; //shows on short iPhones in teh nav bar when there's no room for sendbutton
+
+@property (nonatomic, strong) UIDocumentInteractionController *documentController;
 
 @end
 
@@ -159,22 +162,22 @@
             [alert show];
             return;
         }
+       
+        self.documentController = [UIDocumentInteractionController interactionControllerWithURL:fileURL];
+        self.documentController.UTI = @"com.instagram.exclusivegram";
         
-        UIDocumentInteractionController *documentController = [UIDocumentInteractionController interactionControllerWithURL:fileURL];
-        documentController.UTI = @"com.instagram.exclusivegram";
-        
-        documentController.delegate = self;
+        self.documentController.delegate = self;
         
         NSString *caption = [alertView textFieldAtIndex:0].text;
         
         if (caption.length > 0) {
-            documentController.annotation = @{@"InstagramCaption" : caption};
+            self.documentController.annotation = @{@"InstagramCaption" : caption};
         }
         
         if (self.sendButton.superview) {
-            [documentController presentOpenInMenuFromRect:self.sendButton.bounds inView:self.sendButton animated:YES];
+            [self.documentController presentOpenInMenuFromRect:self.sendButton.bounds inView:self.sendButton animated:YES];
         } else {
-            [documentController presentOpenInMenuFromBarButtonItem:self.sendBarButton animated:YES];
+            [self.documentController presentOpenInMenuFromBarButtonItem:self.sendBarButton animated:YES];
         }
     }
 }
@@ -182,7 +185,7 @@
 #pragma mark - UIDocumentInteractionControllerDelegate
 
 - (void) documentInteractionController:(UIDocumentInteractionController *)controller didEndSendingToApplication:(NSString *)application {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:BLCImageFinishedNotification object:self];
 }
 
 #pragma mark - Buttons
