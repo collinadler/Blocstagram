@@ -42,6 +42,10 @@
 		27CD83591A07EF7A00855D52 /* BLCMediaTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 27CD83581A07EF7A00855D52 /* BLCMediaTableViewCell.m */; };
 		27D5183A1A12C3F6008F6675 /* BLCCircleSpinnerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 27D518391A12C3F6008F6675 /* BLCCircleSpinnerView.m */; };
 		27D5183D1A12DB27008F6675 /* BLCLikeButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 27D5183C1A12DB27008F6675 /* BLCLikeButton.m */; };
+		27FB14011A1AE7A7007B46B2 /* BLCUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 27FB14001A1AE7A7007B46B2 /* BLCUserTests.m */; };
+		27FB14031A1AEA46007B46B2 /* BLCCommentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 27FB14021A1AEA46007B46B2 /* BLCCommentTests.m */; };
+		27FB14051A1AEF9D007B46B2 /* BLCMediaTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 27FB14041A1AEF9D007B46B2 /* BLCMediaTests.m */; };
+		27FB14071A1B0B3F007B46B2 /* BLCComposeCommentViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 27FB14061A1B0B3F007B46B2 /* BLCComposeCommentViewTests.m */; };
 		CF1EDE83514D3212B13C567F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6101C171535440D4AAB291E /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -116,6 +120,10 @@
 		27D518391A12C3F6008F6675 /* BLCCircleSpinnerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCCircleSpinnerView.m; sourceTree = "<group>"; };
 		27D5183B1A12DB27008F6675 /* BLCLikeButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BLCLikeButton.h; sourceTree = "<group>"; };
 		27D5183C1A12DB27008F6675 /* BLCLikeButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCLikeButton.m; sourceTree = "<group>"; };
+		27FB14001A1AE7A7007B46B2 /* BLCUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCUserTests.m; sourceTree = "<group>"; };
+		27FB14021A1AEA46007B46B2 /* BLCCommentTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCCommentTests.m; sourceTree = "<group>"; };
+		27FB14041A1AEF9D007B46B2 /* BLCMediaTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCMediaTests.m; sourceTree = "<group>"; };
+		27FB14061A1B0B3F007B46B2 /* BLCComposeCommentViewTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BLCComposeCommentViewTests.m; sourceTree = "<group>"; };
 		D273029F54FC93029ED972B4 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		DF9A747F36B94E85182049D3 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		F6101C171535440D4AAB291E /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -258,6 +266,10 @@
 			isa = PBXGroup;
 			children = (
 				270E59E51A02EF1600F63148 /* BlocstagramTests.m */,
+				27FB14001A1AE7A7007B46B2 /* BLCUserTests.m */,
+				27FB14021A1AEA46007B46B2 /* BLCCommentTests.m */,
+				27FB14041A1AEF9D007B46B2 /* BLCMediaTests.m */,
+				27FB14061A1B0B3F007B46B2 /* BLCComposeCommentViewTests.m */,
 				270E59E31A02EF1600F63148 /* Supporting Files */,
 			);
 			path = BlocstagramTests;
@@ -486,7 +498,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27FB14011A1AE7A7007B46B2 /* BLCUserTests.m in Sources */,
 				270E59E61A02EF1600F63148 /* BlocstagramTests.m in Sources */,
+				27FB14071A1B0B3F007B46B2 /* BLCComposeCommentViewTests.m in Sources */,
+				27FB14051A1AEF9D007B46B2 /* BLCMediaTests.m in Sources */,
+				27FB14031A1AEA46007B46B2 /* BLCCommentTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
